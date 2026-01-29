@@ -8,19 +8,45 @@ public class FacingCarmera : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        childs = new Transform[transform.childCount];
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            childs[i] = transform.GetChild(i);
-        }
+        CacheChildren();
+    }
+
+    void OnTransformChildrenChanged()
+    {
+        CacheChildren();
     }
 
     // Update is called once per frame
     void Update()
     {
-        for(int i = 0; i < childs.Length; i++)
+        if (childs == null || childs.Length == 0)
         {
-            childs[i].rotation = Camera.main.transform.rotation;//让节点上的子物体与相机旋转角一致
+            return;
+        }
+
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < childs.Length; i++)
+        {
+            if (childs[i] == null)
+            {
+                continue;
+            }
+            childs[i].rotation = cam.transform.rotation;//让节点上的子物体与相机旋转角一致
+        }
+    }
+
+    void CacheChildren()
+    {
+        int count = transform.childCount;
+        childs = new Transform[count];
+        for (int i = 0; i < count; i++)
+        {
+            childs[i] = transform.GetChild(i);
         }
     }
 }

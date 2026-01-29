@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
         Vector2 input = (inputX * transform.right + inputY * transform.up).normalized;
-        rigidbody.velocity = input * speed;
+        rigidbody.velocity = input * speed; // Unity 2022: Rigidbody2D uses velocity (linearVelocity is Unity 6+).
         if (input != Vector2.zero)
         {
             animator.SetBool("IsMoving", true);
