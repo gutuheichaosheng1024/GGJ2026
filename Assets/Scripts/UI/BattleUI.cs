@@ -32,7 +32,7 @@ public class BattleUI : MonoBehaviour
             gameOverRoot.SetActive(false);
         }
         restart.onClick.AddListener(Restart);
-        back.onClick.AddListener(() => SceneManager.LoadScene(backSceneName));
+        back.onClick.AddListener(Back);
         PlayerStatus.Instance.onDeath.AddListener(GameOver);
 
         healthSlider.maxValue = PlayerStatus.Instance.maxHealth;
@@ -40,7 +40,7 @@ public class BattleUI : MonoBehaviour
         PlayerStatus.Instance.onHealthChange += OnHealthChange;
 
         sanSlider.maxValue = PlayerStatus.Instance.maxSan;
-        healthSlider.value = sanSlider.maxValue;
+        sanSlider.value = sanSlider.maxValue;
         PlayerStatus.Instance.onSanChange += OnSanChange;
 
     }
@@ -75,7 +75,14 @@ public class BattleUI : MonoBehaviour
     public void Restart()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Manager.SceneTransitionManager.Instance.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void Back()
+    {
+        Debug.LogWarning("call");
+        Time.timeScale = 1f;
+        Manager.SceneTransitionManager.Instance.LoadScene(backSceneName);
     }
 
     public void OnHealthChange(float value)
