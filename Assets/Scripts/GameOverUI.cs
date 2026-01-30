@@ -9,7 +9,8 @@ public class GameOverUI : MonoBehaviour
     public bool pauseOnShow = true;
 
     [Header("Restart")]
-    public string battleSceneName = "scene1";
+    [BuildSceneSelector]
+    public string battleSceneName = string.Empty;
 
     void Awake()
     {
