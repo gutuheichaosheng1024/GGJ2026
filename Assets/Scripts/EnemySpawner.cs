@@ -6,6 +6,10 @@ public class EnemySpawner : MonoBehaviour
 {
     [Header("References")]
     public GameObject enemyPrefab;
+    [Tooltip("Optional. If set (>=2), spawner will pick randomly from this list.")]
+    public List<GameObject> enemyPrefabs = new List<GameObject>();
+    [Tooltip("Optional weights for enemyPrefabs (same size). If empty, uniform random.")]
+    public List<float> enemyWeights = new List<float>();
     public Transform player;
     public PlayerStatus playerStatus;
     [Tooltip("Spawned enemies will be parented under this transform if set.")]
@@ -63,7 +67,7 @@ public class EnemySpawner : MonoBehaviour
     {
         CleanupDead();
 
-        if (enemyPrefab == null || player == null)
+        if (GetRandomPrefab() == null || player == null)
         {
             return;
         }
@@ -92,7 +96,12 @@ public class EnemySpawner : MonoBehaviour
                 continue;
             }
 
-            GameObject enemy = Instantiate(enemyPrefab, pos, Quaternion.identity, spawnParent);
+            GameObject prefab = GetRandomPrefab();
+            if (prefab == null)
+            {
+                return;
+            }
+            GameObject enemy = Instantiate(prefab, pos, Quaternion.identity, spawnParent);
             BindKillCounter(enemy);
             alive.Add(enemy);
         }
@@ -178,5 +187,40 @@ public class EnemySpawner : MonoBehaviour
                 alive.RemoveAt(i);
             }
         }
+    }
+
+    GameObject GetRandomPrefab()
+    {
+        if (enemyPrefabs != null && enemyPrefabs.Count >= 2)
+        {
+            int count = enemyPrefabs.Count;
+            if (enemyWeights != null && enemyWeights.Count == count)
+            {
+                float total = 0f;
+                for (int i = 0; i < count; i++)
+                {
+                    total += Mathf.Max(0f, enemyWeights[i]);
+                }
+
+                if (total > 0f)
+                {
+                    float pick = Random.value * total;
+                    float acc = 0f;
+                    for (int i = 0; i < count; i++)
+                    {
+                        acc += Mathf.Max(0f, enemyWeights[i]);
+                        if (pick <= acc)
+                        {
+                            return enemyPrefabs[i];
+                        }
+                    }
+                }
+            }
+
+            int idx = Random.Range(0, count);
+            return enemyPrefabs[idx];
+        }
+
+        return enemyPrefab;
     }
 }

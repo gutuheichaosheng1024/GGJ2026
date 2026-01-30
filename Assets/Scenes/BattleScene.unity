@@ -1510,7 +1510,7 @@ MonoBehaviour:
     rangedCooldownAdd: 0
     rangedCooldownMul: 0.5
     moveSpeedAdd: 0
-    moveSpeedMul: 2
+    moveSpeedMul: 1
   onDeath:
     m_PersistentCalls:
       m_Calls:
@@ -2371,6 +2371,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 22930631506241402, guid: 667623b4f9d1667449306c4b5f3573b2,
     type: 3}
+  enemyPrefabs:
+  - {fileID: 22930631506241402, guid: 667623b4f9d1667449306c4b5f3573b2, type: 3}
+  - {fileID: 22930631506241402, guid: d1230575cfa8df746be9642d1350d292, type: 3}
+  enemyWeights: []
   player: {fileID: 569619738}
   playerStatus: {fileID: 569619739}
   spawnParent: {fileID: 931490019}
@@ -3394,6 +3398,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Ghost (Head)
+      objectReference: {fileID: 0}
+    - target: {fileID: 22930631506241402, guid: 667623b4f9d1667449306c4b5f3573b2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 806457607154873089, guid: 667623b4f9d1667449306c4b5f3573b2,
         type: 3}
@@ -24996,6 +25005,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Boss
+      objectReference: {fileID: 0}
+    - target: {fileID: 22930631506241402, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 806457607154873089, guid: 2c58227970bf1b84095e3c91e593ee07,
         type: 3}
