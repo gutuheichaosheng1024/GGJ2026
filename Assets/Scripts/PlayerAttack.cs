@@ -68,6 +68,20 @@ public class PlayerAttack : MonoBehaviour
     public Animator animator;
     public UnityEvent onAttack;
 
+    [Header("Hit Stop (Melee)")]
+    public bool useHitStop = true;
+    [Range(0.01f, 0.2f)]
+    public float hitStopDuration = 0.06f;
+    [Range(0f, 0.2f)]
+    public float hitStopTimeScale = 0.0f;
+    public HitStop hitStop;
+
+    [Header("Camera Shake (Melee)")]
+    public bool useCameraShake = true;
+    public float shakeStrength = 0.15f;
+    public float shakeDuration = 0.06f;
+    public CameraShake cameraShake;
+
     [Header("Preview")]
     [Tooltip("Optional preview holder. If empty, a child will be created.")]
     public Transform previewRoot;
@@ -91,6 +105,16 @@ public class PlayerAttack : MonoBehaviour
         if (animator == null)
         {
             animator = GetComponent<Animator>();
+        }
+
+        if (hitStop == null)
+        {
+            hitStop = FindFirstObjectByType<HitStop>();
+        }
+
+        if (cameraShake == null)
+        {
+            cameraShake = FindFirstObjectByType<CameraShake>();
         }
 
         SetupPreviewRenderer();
@@ -181,7 +205,20 @@ public class PlayerAttack : MonoBehaviour
         }
 
         onAttack?.Invoke();
-        ApplyDamage(attackDir, cfg);
+        bool hitAny = ApplyDamage(attackDir, cfg);
+
+        if (hitAny)
+        {
+            if (useHitStop && hitStop != null)
+            {
+                hitStop.Trigger(hitStopDuration, hitStopTimeScale);
+            }
+
+            if (useCameraShake && cameraShake != null)
+            {
+                cameraShake.Shake(shakeDuration, shakeStrength);
+            }
+        }
     }
 
     void TryRangedAttack()
@@ -241,8 +278,9 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    void ApplyDamage(Vector2 attackDir, AttackConfig cfg)
+    bool ApplyDamage(Vector2 attackDir, AttackConfig cfg)
     {
+        bool hitAny = false;
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, cfg.radius, targetLayers);
         float halfAngle = cfg.angle * 0.5f;
         for (int i = 0; i < hits.Length; i++)
@@ -252,14 +290,14 @@ public class PlayerAttack : MonoBehaviour
                 continue;
             }
 
+            Vector2 toTarget = (hits[i].transform.position - transform.position);
+            if (toTarget.sqrMagnitude < 0.0001f)
+            {
+                continue;
+            }
+
             if (attackMode == AttackMode.Cone)
             {
-                Vector2 toTarget = (hits[i].transform.position - transform.position);
-                if (toTarget.sqrMagnitude < 0.0001f)
-                {
-                    continue;
-                }
-
                 float a = Vector2.Angle(attackDir, toTarget.normalized);
                 if (a > halfAngle)
                 {
@@ -270,9 +308,12 @@ public class PlayerAttack : MonoBehaviour
             MonsterAI monster = hits[i].GetComponentInParent<MonsterAI>();
             if (monster != null)
             {
-                monster.TakeDamage(cfg.damage);
+                monster.ApplyHit(cfg.damage, toTarget.normalized, true);
+                hitAny = true;
             }
         }
+
+        return hitAny;
     }
 
     void ShowPreview(Vector2 direction, AttackConfig cfg)

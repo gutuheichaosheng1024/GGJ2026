@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,6 +26,17 @@ public class MonsterAI : MonoBehaviour
     public float maxHealth = 50f;
     public float currentHealth = 50f;
 
+    [Header("Hit Flash (Material)")]
+    [Tooltip("Float property name on the material/shader (e.g. FlashAmount).")]
+    public string flashProperty = "FlashAmount";
+    public float flashDuration = 0.08f;
+
+    [Header("Hit Knockback")]
+    public float knockbackDistance = 0.4f;
+    public float knockbackDuration = 0.08f;
+    [Tooltip("0-1 time to 0-1 distance. Ease-out by default.")]
+    public AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
     [Header("Animation")]
     public Animator animator;
     public string moveBool = "IsMoving";
@@ -41,6 +53,17 @@ public class MonsterAI : MonoBehaviour
     private bool isDead;
     private Vector2 desiredVelocity;
     private bool shouldMove;
+
+    private SpriteRenderer[] spriteRenderers;
+    private MaterialPropertyBlock block;
+    private int flashPropId;
+    private Coroutine flashRoutine;
+
+    private float knockbackTime;
+    private float knockbackElapsed;
+    private Vector2 knockbackDir;
+    private float knockbackTotal;
+    private float knockbackPrevDist;
 
     void Awake()
     {
@@ -63,6 +86,11 @@ public class MonsterAI : MonoBehaviour
                 rb.angularVelocity = 0f;
             }
         }
+
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        block = new MaterialPropertyBlock();
+        flashPropId = Shader.PropertyToID(flashProperty);
+        SetFlashAmount(0f);
 
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
     }
@@ -116,6 +144,29 @@ public class MonsterAI : MonoBehaviour
             return;
         }
 
+        if (knockbackTime > 0f)
+        {
+            float dt = Time.fixedDeltaTime;
+            knockbackTime -= dt;
+            knockbackElapsed += dt;
+
+            float t = knockbackDuration > 0f ? Mathf.Clamp01(knockbackElapsed / knockbackDuration) : 1f;
+            float dist = knockbackCurve != null ? knockbackCurve.Evaluate(t) * knockbackTotal : t * knockbackTotal;
+            float delta = dist - knockbackPrevDist;
+            knockbackPrevDist = dist;
+
+            Vector2 step = knockbackDir * delta;
+            if (rb != null)
+            {
+                rb.MovePosition(rb.position + step);
+            }
+            else
+            {
+                transform.position += (Vector3)step;
+            }
+            return;
+        }
+
         if (rb == null)
         {
             if (shouldMove)
@@ -132,7 +183,7 @@ public class MonsterAI : MonoBehaviour
         }
         else
         {
-            rb.velocity = Vector2.zero; // Unity 2022: Rigidbody2D uses velocity (linearVelocity is Unity 6+).
+            rb.velocity = Vector2.zero;
         }
     }
 
@@ -147,7 +198,7 @@ public class MonsterAI : MonoBehaviour
         shouldMove = false;
         if (rb != null)
         {
-            rb.velocity = Vector2.zero; // Unity 2022: Rigidbody2D uses velocity (linearVelocity is Unity 6+).
+            rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
     }
@@ -182,16 +233,93 @@ public class MonsterAI : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        ApplyHit(amount, Vector2.zero, false);
+    }
+
+    public void ApplyHit(float amount, Vector2 hitDir, bool isMelee)
+    {
         if (isDead)
         {
             return;
         }
 
         currentHealth = Mathf.Clamp(currentHealth - amount, 0f, maxHealth);
+        TriggerFlash();
+        StartKnockback(hitDir);
+
         if (currentHealth <= 0f)
         {
             Die();
         }
+    }
+
+    void TriggerFlash()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            return;
+        }
+
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+        }
+        flashRoutine = StartCoroutine(FlashCoroutine());
+    }
+
+    IEnumerator FlashCoroutine()
+    {
+        SetFlashAmount(1f);
+        yield return new WaitForSecondsRealtime(flashDuration);
+        SetFlashAmount(0f);
+    }
+
+    void SetFlashAmount(float value)
+    {
+        if (spriteRenderers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            SpriteRenderer sr = spriteRenderers[i];
+            if (sr == null)
+            {
+                continue;
+            }
+
+            sr.GetPropertyBlock(block);
+            block.SetFloat(flashPropId, value);
+            sr.SetPropertyBlock(block);
+        }
+    }
+
+    void StartKnockback(Vector2 hitDir)
+    {
+        if (knockbackDistance <= 0f || knockbackDuration <= 0f)
+        {
+            return;
+        }
+
+        if (hitDir == Vector2.zero)
+        {
+            if (target != null)
+            {
+                hitDir = (transform.position - target.position);
+            }
+        }
+
+        if (hitDir == Vector2.zero)
+        {
+            return;
+        }
+
+        knockbackDir = hitDir.normalized;
+        knockbackTotal = knockbackDistance;
+        knockbackTime = knockbackDuration;
+        knockbackElapsed = 0f;
+        knockbackPrevDist = 0f;
     }
 
     void Die()
