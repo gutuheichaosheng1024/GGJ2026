@@ -1307,6 +1307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3a4ae4854013b49a7e0dbeac20fed9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowMove: 1
 --- !u!95 &569619734
 Animator:
   serializedVersion: 5
@@ -1479,14 +1480,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e50860275cc9dee46a7cbd6be2e57f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 100
-  maxSan: 100
-  currentSan: 100
-  sanDrainPerSecond: 1
-  speed: 2
-  dashTime: 0.5
-  dashSpeed: 20
+  maxHealth: 10
+  currentHealth: 10
+  maxSan: 60
+  currentSan: 60
+  moveSpeed: 2
+  dashTime: 0.1
+  dashSpeed: 5
+  isMaskOn: 0
+  sanRegenPerSecond: 0.5
+  sanDrainMaskPerSecond: 1
+  maskBuff:
+    coneDamageAdd: 0
+    coneDamageMul: 2
+    coneRadiusAdd: 0
+    coneRadiusMul: 2
+    coneCooldownAdd: 0
+    coneCooldownMul: 0.5
+    circleDamageAdd: 0
+    circleDamageMul: 2
+    circleRadiusAdd: 0
+    circleRadiusMul: 2
+    circleCooldownAdd: 0
+    circleCooldownMul: 0.5
+    rangedDamageAdd: 0
+    rangedDamageMul: 2
+    rangedRangeAdd: 0
+    rangedRangeMul: 2
+    rangedCooldownAdd: 0
+    rangedCooldownMul: 0.5
+    moveSpeedAdd: 0
+    moveSpeedMul: 2
   onDeath:
     m_PersistentCalls:
       m_Calls:
@@ -1515,16 +1539,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackMode: 1
-  useDirectModeKeys: 0
-  coneKey: 49
-  circleKey: 50
-  rangedKey: 51
   cycleKey: 51
+  maskToggleKey: 50
   coneConfig:
     radius: 1
     angle: 90
-    damage: 15
-    cooldown: 0.1
+    damage: 1
+    cooldown: 0.5
     meshSegments: 24
     previewDuration: 0.05
     previewColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.4}
@@ -1535,8 +1556,8 @@ MonoBehaviour:
   circleConfig:
     radius: 1
     angle: 90
-    damage: 15
-    cooldown: 0.05
+    damage: 2
+    cooldown: 1
     meshSegments: 24
     previewDuration: 0.15
     previewColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.4}
@@ -1549,7 +1570,7 @@ MonoBehaviour:
       type: 3}
     projectileSpeed: 8
     projectileRange: 6
-    projectileDamage: 50
+    projectileDamage: 1
     hitMode: 1
     attackTrigger: Attack
     attackEffectPrefab: {fileID: 0}
@@ -1562,7 +1583,7 @@ MonoBehaviour:
   onAttack:
     m_PersistentCalls:
       m_Calls: []
-  logModeEvents: 1
+  logModeEvents: 0
   weaponHotbarUI: {fileID: 616404756}
   useHitStop: 0
   hitStopDuration: 0.02
@@ -2652,6 +2673,7 @@ Transform:
   - {fileID: 1095611883}
   - {fileID: 1248726563}
   - {fileID: 906323695}
+  - {fileID: 1221230007}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &931490020
@@ -3742,6 +3764,12 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1208576221}
   m_CullTransparentMesh: 1
+--- !u!4 &1221230007 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+    type: 3}
+  m_PrefabInstance: {fileID: 2139052836}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1248726562
 GameObject:
   m_ObjectHideFlags: 0
@@ -24956,6 +24984,94 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &2139052836
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 931490019}
+    m_Modifications:
+    - target: {fileID: 22930631506241402, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_Name
+      value: Boss
+      objectReference: {fileID: 0}
+    - target: {fileID: 806457607154873089, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: attackRange
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 806457607154873089, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: stopDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.48
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.14148673
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2c58227970bf1b84095e3c91e593ee07, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

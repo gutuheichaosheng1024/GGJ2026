@@ -54,11 +54,8 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("Mode")]
     public AttackMode attackMode = AttackMode.Cone;
-    public bool useDirectModeKeys = false;
-    public KeyCode coneKey = KeyCode.Alpha1;
-    public KeyCode circleKey = KeyCode.Alpha2;
-    public KeyCode rangedKey = KeyCode.Alpha3;
     public KeyCode cycleKey = KeyCode.Alpha3;
+    public KeyCode maskToggleKey = KeyCode.Alpha2;
 
     [Header("Configs")]
     public AttackConfig coneConfig = new AttackConfig();
@@ -103,10 +100,12 @@ public class PlayerAttack : MonoBehaviour
     private float lastConeAttackTime;
     private float lastCircleAttackTime;
     private float lastRangedAttackTime;
+    private PlayerStatus status;
 
     void Awake()
     {
         EnsurePreviewObject();
+        status = PlayerStatus.Instance;
 
         if (animator == null)
         {
@@ -129,24 +128,13 @@ public class PlayerAttack : MonoBehaviour
     
     void Update()
     {
-        if (useDirectModeKeys)
-        {
-            if (Input.GetKeyDown(coneKey))
-            {
-                SetAttackMode(AttackMode.Cone);
-            }
-            else if (Input.GetKeyDown(circleKey))
-            {
-                SetAttackMode(AttackMode.Circle);
-            }
-            else if (Input.GetKeyDown(rangedKey))
-            {
-                SetAttackMode(AttackMode.Ranged);
-            }
-        }
-        else if (Input.GetKeyDown(cycleKey))
+        if (Input.GetKeyDown(cycleKey))
         {
             CycleAttackMode();
+        }
+        if (Input.GetKeyDown(maskToggleKey) && status != null)
+        {
+            status.ToggleMask();
         }
 
         if (Input.GetMouseButtonDown(mouseButton))
@@ -204,7 +192,8 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        if (!CanAttack(cfg))
+        float cooldown = GetMeleeCooldown(cfg);
+        if (!CanAttack(cfg, cooldown))
         {
             return;
         }
@@ -232,7 +221,9 @@ public class PlayerAttack : MonoBehaviour
         }
 
         onAttack?.Invoke();
-        bool hitAny = ApplyDamage(attackDir, cfg);
+        float damage = GetMeleeDamage(cfg);
+        float radius = GetMeleeRadius(cfg);
+        bool hitAny = ApplyDamage(attackDir, cfg, damage, radius);
 
         if (hitAny)
         {
@@ -255,7 +246,8 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        if (Time.time - lastRangedAttackTime < rangedConfig.cooldown)
+        float cooldown = GetRangedCooldown(rangedConfig);
+        if (Time.time - lastRangedAttackTime < cooldown)
         {
             return;
         }
@@ -286,10 +278,12 @@ public class PlayerAttack : MonoBehaviour
 
         onAttack?.Invoke();
 
-        SpawnProjectile(attackDir);
+        float damage = GetRangedDamage(rangedConfig);
+        float range = GetRangedRange(rangedConfig);
+        SpawnProjectile(attackDir, damage, range);
     }
 
-    void SpawnProjectile(Vector2 direction)
+    void SpawnProjectile(Vector2 direction, float damage, float range)
     {
         if (rangedConfig.projectilePrefab == null)
         {
@@ -301,14 +295,14 @@ public class PlayerAttack : MonoBehaviour
         Bullet bullet = proj.GetComponent<Bullet>();
         if (bullet != null)
         {
-            bullet.Initialize(direction, rangedConfig.projectileSpeed, rangedConfig.projectileRange, rangedConfig.projectileDamage, rangedConfig.hitMode, targetLayers);
+            bullet.Initialize(direction, rangedConfig.projectileSpeed, range, damage, rangedConfig.hitMode, targetLayers);
         }
     }
 
-    bool ApplyDamage(Vector2 attackDir, AttackConfig cfg)
+    bool ApplyDamage(Vector2 attackDir, AttackConfig cfg, float damage, float radius)
     {
         bool hitAny = false;
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, cfg.radius, targetLayers);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius, targetLayers);
         float halfAngle = cfg.angle * 0.5f;
         for (int i = 0; i < hits.Length; i++)
         {
@@ -335,7 +329,7 @@ public class PlayerAttack : MonoBehaviour
             MonsterAI monster = hits[i].GetComponentInParent<MonsterAI>();
             if (monster != null)
             {
-                monster.ApplyHit(cfg.damage, toTarget.normalized, true);
+                monster.ApplyHit(damage, toTarget.normalized, true);
                 hitAny = true;
             }
         }
@@ -553,10 +547,10 @@ public class PlayerAttack : MonoBehaviour
         return attackMode == AttackMode.Cone ? coneConfig : circleConfig;
     }
 
-    bool CanAttack(AttackConfig cfg)
+    bool CanAttack(AttackConfig cfg, float cooldown)
     {
         float lastTime = attackMode == AttackMode.Cone ? lastConeAttackTime : lastCircleAttackTime;
-        return Time.time - lastTime >= cfg.cooldown;
+        return Time.time - lastTime >= cooldown;
     }
 
     void RecordAttack(AttackConfig cfg)
@@ -569,5 +563,59 @@ public class PlayerAttack : MonoBehaviour
         {
             lastCircleAttackTime = Time.time;
         }
+    }
+
+    float GetMeleeDamage(AttackConfig cfg)
+    {
+        float baseDamage = cfg.damage;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseDamage;
+        float add = status.maskBuff.GetDamageAdd(attackMode);
+        float mul = status.maskBuff.GetDamageMul(attackMode);
+        return (baseDamage + add) * mul;
+    }
+
+    float GetMeleeRadius(AttackConfig cfg)
+    {
+        float baseRadius = cfg.radius;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseRadius;
+        float add = status.maskBuff.GetRadiusAdd(attackMode);
+        float mul = status.maskBuff.GetRadiusMul(attackMode);
+        return Mathf.Max(0.01f, (baseRadius + add) * mul);
+    }
+
+    float GetMeleeCooldown(AttackConfig cfg)
+    {
+        float baseCd = cfg.cooldown;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseCd;
+        float add = status.maskBuff.GetCooldownAdd(attackMode);
+        float mul = status.maskBuff.GetCooldownMul(attackMode);
+        return Mathf.Max(0.05f, (baseCd - add) * mul);
+    }
+
+    float GetRangedDamage(RangedConfig cfg)
+    {
+        float baseDamage = cfg.projectileDamage;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseDamage;
+        float add = status.maskBuff.GetDamageAdd(AttackMode.Ranged);
+        float mul = status.maskBuff.GetDamageMul(AttackMode.Ranged);
+        return (baseDamage + add) * mul;
+    }
+
+    float GetRangedRange(RangedConfig cfg)
+    {
+        float baseRange = cfg.projectileRange;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseRange;
+        float add = status.maskBuff.GetRangeAdd(AttackMode.Ranged);
+        float mul = status.maskBuff.GetRangeMul(AttackMode.Ranged);
+        return Mathf.Max(0.01f, (baseRange + add) * mul);
+    }
+
+    float GetRangedCooldown(RangedConfig cfg)
+    {
+        float baseCd = cfg.cooldown;
+        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseCd;
+        float add = status.maskBuff.GetCooldownAdd(AttackMode.Ranged);
+        float mul = status.maskBuff.GetCooldownMul(AttackMode.Ranged);
+        return Mathf.Max(0.05f, (baseCd - add) * mul);
     }
 }

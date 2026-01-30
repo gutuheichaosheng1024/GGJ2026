@@ -37,6 +37,11 @@ public class MonsterAI : MonoBehaviour
     [Tooltip("0-1 time to 0-1 distance. Ease-out by default.")]
     public AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Header("Hit VFX")]
+    public GameObject hitVfxPrefab;
+    public Vector3 hitVfxOffset;
+    public float hitVfxLifetime = 1.0f;
+
     [Header("Animation")]
     public Animator animator;
     public string moveBool = "IsMoving";
@@ -245,6 +250,7 @@ public class MonsterAI : MonoBehaviour
 
         currentHealth = Mathf.Clamp(currentHealth - amount, 0f, maxHealth);
         TriggerFlash();
+        SpawnHitVfx(hitDir);
         StartKnockback(hitDir);
 
         if (currentHealth <= 0f)
@@ -265,6 +271,28 @@ public class MonsterAI : MonoBehaviour
             StopCoroutine(flashRoutine);
         }
         flashRoutine = StartCoroutine(FlashCoroutine());
+    }
+
+    void SpawnHitVfx(Vector2 hitDir)
+    {
+        if (hitVfxPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 pos = transform.position + hitVfxOffset;
+        Quaternion rot = Quaternion.identity;
+        if (hitDir != Vector2.zero)
+        {
+            float z = Mathf.Atan2(hitDir.y, hitDir.x) * Mathf.Rad2Deg;
+            rot = Quaternion.Euler(0f, 0f, z);
+        }
+
+        GameObject vfx = Instantiate(hitVfxPrefab, pos, rot);
+        if (hitVfxLifetime > 0f)
+        {
+            Destroy(vfx, hitVfxLifetime);
+        }
     }
 
     IEnumerator FlashCoroutine()

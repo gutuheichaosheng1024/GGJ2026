@@ -51,7 +51,7 @@ public class Player : MonoBehaviour
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
         Vector2 input = (inputX * transform.right + inputY * transform.up).normalized;
-        rigidbody.velocity = input * PlayerStatus.Instance.speed;
+        rigidbody.velocity = input * PlayerStatus.Instance.GetMoveSpeed();
         if (input != Vector2.zero)
         {
             animator.SetBool("IsMoving", true);
