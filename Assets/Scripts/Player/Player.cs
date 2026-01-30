@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerStatus))]
 public class Player : MonoBehaviour
 {
-
+    public bool allowMove = true;
     new private Rigidbody2D rigidbody;
     private Animator animator;
     private float inputX, inputY;
@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (dashTimer > 0) return;
+        if (dashTimer > 0 || !allowMove) return;
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             Vector2 dashDir = Vector2.zero;
@@ -68,5 +68,17 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         if(dashTimer > 0) dashTimer -= Time.fixedDeltaTime;
+    }
+
+    public void StopMove()
+    {
+        allowMove = false;
+        dashTimer = 0.0f;
+        rigidbody.velocity = Vector2.zero;
+    }
+
+    public void StartMove()
+    {
+        allowMove = true;
     }
 }
