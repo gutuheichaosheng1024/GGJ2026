@@ -22,7 +22,7 @@ public class KillCounter : MonoBehaviour
     {
         if (killText != null)
         {
-            killText.text = "Kills: " + kills;
+            killText.text = "击杀: " + kills;
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -15,28 +16,49 @@ public class PlayerStatus : MonoBehaviour
     [Tooltip("Sanity drain per second.")]
     public float sanDrainPerSecond = 1f;
 
-    [Header("UI")]
-    public Slider healthSlider;
-    public Slider sanSlider;
+    public float speed = 1.0f;
+    public float dashTime = 2.0f;
+    public float dashSpeed = 8.0f;
 
     [Header("Events")]
+    public UnityAction<float> onHealthChange;
+    public UnityAction<float> onSanChange;
     public UnityEvent onDeath;
 
     private bool isDead;
+
+    private static PlayerStatus instance;
+
+    public static PlayerStatus Instance
+    {
+        get
+        {
+
+            if (instance == null)
+            {
+                instance = FindAnyObjectByType<PlayerStatus>();
+
+                if (instance == null)
+                {
+                    throw new System.Exception("不存在playerStatus");
+                }
+            }
+            return instance;
+
+        }
+    }
 
     void Start()
     {
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         currentSan = Mathf.Clamp(currentSan, 0f, maxSan);
-        SyncSliders();
     }
 
     void Update()
     {
         if (sanDrainPerSecond > 0f && currentSan > 0f)
         {
-            currentSan = Mathf.Max(0f, currentSan - sanDrainPerSecond * Time.deltaTime);
-            SyncSan();
+            AddSan(-sanDrainPerSecond * Time.deltaTime);
         }
 
         CheckDeath();
@@ -50,14 +72,14 @@ public class PlayerStatus : MonoBehaviour
         }
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0f, maxHealth);
-        SyncHealth();
+        onHealthChange.Invoke(currentHealth);
         CheckDeath();
     }
 
     public void AddSan(float amount)
     {
         currentSan = Mathf.Clamp(currentSan + amount, 0f, maxSan);
-        SyncSan();
+        onSanChange.Invoke(currentSan);
     }
 
     void CheckDeath()
@@ -69,31 +91,6 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
-    void SyncSliders()
-    {
-        SyncHealth();
-        SyncSan();
-    }
 
-    void SyncHealth()
-    {
-        if (healthSlider == null)
-        {
-            return;
-        }
 
-        healthSlider.maxValue = maxHealth;
-        healthSlider.value = currentHealth;
-    }
-
-    void SyncSan()
-    {
-        if (sanSlider == null)
-        {
-            return;
-        }
-
-        sanSlider.maxValue = maxSan;
-        sanSlider.value = currentSan;
-    }
 }

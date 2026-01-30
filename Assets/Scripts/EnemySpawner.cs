@@ -11,7 +11,7 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("Spawned enemies will be parented under this transform if set.")]
     public Transform spawnParent;
     [Tooltip("Kill counter to bind to enemy death events.")]
-    public KillCounter killCounter;
+    public BattleUI BattleUI;
 
     [Header("Spawn Area")]
     public float minSpawnRadius = 5f;
@@ -51,9 +51,9 @@ public class EnemySpawner : MonoBehaviour
             playerStatus = player.GetComponent<PlayerStatus>();
         }
 
-        if (killCounter == null)
+        if (BattleUI == null)
         {
-            killCounter = FindFirstObjectByType<KillCounter>();
+            BattleUI = FindFirstObjectByType<BattleUI>();
         }
 
         ScheduleNextSpawn();
@@ -100,7 +100,7 @@ public class EnemySpawner : MonoBehaviour
 
     void BindKillCounter(GameObject enemy)
     {
-        if (enemy == null || killCounter == null)
+        if (enemy == null || BattleUI == null)
         {
             return;
         }
@@ -108,7 +108,7 @@ public class EnemySpawner : MonoBehaviour
         MonsterAI ai = enemy.GetComponent<MonsterAI>();
         if (ai != null && ai.onDeath != null)
         {
-            ai.onDeath.AddListener(killCounter.AddKill);
+            ai.onDeath.AddListener(BattleUI.AddKill);
         }
     }
 
