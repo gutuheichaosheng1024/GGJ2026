@@ -146,7 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   target: {fileID: 0}
-  moveSpeed: 1
+  moveSpeed: 0.7
   stopDistance: 0.5
   forceKinematic: 0
   freezeRotation: 1
