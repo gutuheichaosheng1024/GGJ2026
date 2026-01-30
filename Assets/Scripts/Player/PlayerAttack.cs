@@ -6,8 +6,8 @@ public class PlayerAttack : MonoBehaviour
 {
     public enum AttackMode
     {
-        Circle,
         Cone,
+        Circle,
         Ranged
     }
 
@@ -54,9 +54,11 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("Mode")]
     public AttackMode attackMode = AttackMode.Cone;
+    public bool useDirectModeKeys = false;
     public KeyCode coneKey = KeyCode.Alpha1;
     public KeyCode circleKey = KeyCode.Alpha2;
     public KeyCode rangedKey = KeyCode.Alpha3;
+    public KeyCode cycleKey = KeyCode.Alpha3;
 
     [Header("Configs")]
     public AttackConfig coneConfig = new AttackConfig();
@@ -67,6 +69,10 @@ public class PlayerAttack : MonoBehaviour
     public LayerMask targetLayers = ~0;
     public Animator animator;
     public UnityEvent onAttack;
+    public bool logModeEvents = false;
+
+    [Header("UI (Optional Direct Link)")]
+    public WeaponHotbarUI weaponHotbarUI;
 
     [Header("Hit Stop (Melee)")]
     public bool useHitStop = true;
@@ -120,20 +126,27 @@ public class PlayerAttack : MonoBehaviour
         SetupPreviewRenderer();
         HidePreview();
     }
-
+    
     void Update()
     {
-        if (Input.GetKeyDown(coneKey))
+        if (useDirectModeKeys)
         {
-            SetAttackMode(AttackMode.Cone);
+            if (Input.GetKeyDown(coneKey))
+            {
+                SetAttackMode(AttackMode.Cone);
+            }
+            else if (Input.GetKeyDown(circleKey))
+            {
+                SetAttackMode(AttackMode.Circle);
+            }
+            else if (Input.GetKeyDown(rangedKey))
+            {
+                SetAttackMode(AttackMode.Ranged);
+            }
         }
-        else if (Input.GetKeyDown(circleKey))
+        else if (Input.GetKeyDown(cycleKey))
         {
-            SetAttackMode(AttackMode.Circle);
-        }
-        else if (Input.GetKeyDown(rangedKey))
-        {
-            SetAttackMode(AttackMode.Ranged);
+            CycleAttackMode();
         }
 
         if (Input.GetMouseButtonDown(mouseButton))
@@ -155,6 +168,20 @@ public class PlayerAttack : MonoBehaviour
         {
             HidePreview();
         }
+        if (logModeEvents)
+        {
+            Debug.Log($"[PlayerAttack] Mode -> {attackMode} ({(int)attackMode})");
+        }
+        if (weaponHotbarUI != null)
+        {
+            weaponHotbarUI.SetWeaponIndexAnimated((int)attackMode);
+        }
+    }
+    
+    public void CycleAttackMode()
+    {
+        int next = ((int)attackMode + 1) % 3;
+        SetAttackMode((AttackMode)next);
     }
 
     void TryAttack()
