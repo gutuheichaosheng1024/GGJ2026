@@ -285,7 +285,7 @@ MonoBehaviour:
   hitVfxLifetime: 1
   hitAudioSource: {fileID: 5436178226005329958}
   hitClips:
-  - {fileID: 8300000, guid: ccf48c294f61b014a9f95eab9b0b8686, type: 3}
+  - {fileID: 8300000, guid: d880c3cb03dc73b42ac2160c365164fa, type: 3}
   hitSfxCooldown: 0.1
   hitPitchRange: {x: 0.95, y: 1.05}
   animator: {fileID: 0}
