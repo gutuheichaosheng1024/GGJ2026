@@ -84,11 +84,22 @@ public class PlayerStatus : MonoBehaviour
     public void ToggleMask()
     {
         isMaskOn = !isMaskOn;
+        SyncPostFx();
     }
 
     public void SetMask(bool on)
     {
         isMaskOn = on;
+        SyncPostFx();
+    }
+
+    void SyncPostFx()
+    {
+        PostFXController fx = FindFirstObjectByType<PostFXController>();
+        if (fx != null)
+        {
+            fx.SetMask(isMaskOn);
+        }
     }
 
     public float GetMoveSpeed()

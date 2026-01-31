@@ -150,7 +150,7 @@ MonoBehaviour:
   stopDistance: 0.5
   forceKinematic: 0
   freezeRotation: 1
-  attackRange: 0.5
+  attackRange: 0.25
   attackDamage: 1
   attackCooldown: 1
   maxHealth: 2

@@ -70,6 +70,7 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("UI (Optional Direct Link)")]
     public WeaponHotbarUI weaponHotbarUI;
+    public PostFXController postFxController;
 
     [Header("Hit Stop (Melee)")]
     public bool useHitStop = true;
@@ -106,6 +107,10 @@ public class PlayerAttack : MonoBehaviour
     {
         EnsurePreviewObject();
         status = PlayerStatus.Instance;
+        if (postFxController == null)
+        {
+            postFxController = FindFirstObjectByType<PostFXController>();
+        }
 
         if (animator == null)
         {
@@ -125,7 +130,15 @@ public class PlayerAttack : MonoBehaviour
         SetupPreviewRenderer();
         HidePreview();
     }
-    
+
+    void Start()
+    {
+        if (postFxController != null && status != null)
+        {
+            postFxController.SetMask(status.isMaskOn);
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(cycleKey))
@@ -135,6 +148,10 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetKeyDown(maskToggleKey) && status != null)
         {
             status.ToggleMask();
+            if (postFxController != null)
+            {
+                postFxController.SetMask(status.isMaskOn);
+            }
         }
 
         if (Input.GetMouseButtonDown(mouseButton))
@@ -165,7 +182,7 @@ public class PlayerAttack : MonoBehaviour
             weaponHotbarUI.SetWeaponIndexAnimated((int)attackMode);
         }
     }
-    
+
     public void CycleAttackMode()
     {
         int next = ((int)attackMode + 1) % 3;
