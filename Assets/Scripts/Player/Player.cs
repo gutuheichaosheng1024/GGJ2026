@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        offset = Camera.main.transform.position - transform.position; 
+        offset = Camera.main.transform.position - transform.position;
         rigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(dashTimer > 0) dashTimer -= Time.fixedDeltaTime;
+        if (dashTimer > 0) dashTimer -= Time.fixedDeltaTime;
     }
 
     public void StopMove()

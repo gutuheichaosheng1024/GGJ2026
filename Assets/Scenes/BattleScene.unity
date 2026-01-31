@@ -1415,6 +1415,7 @@ GameObject:
   - component: {fileID: 569619737}
   - component: {fileID: 569619736}
   - component: {fileID: 569619735}
+  - component: {fileID: 569619741}
   - component: {fileID: 569619734}
   - component: {fileID: 569619733}
   - component: {fileID: 569619739}
@@ -1728,6 +1729,14 @@ MonoBehaviour:
   previewRoot: {fileID: 0}
   previewObjectName: AttackPreview
   mouseButton: 0
+--- !u!81 &569619741
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 569619732}
+  m_Enabled: 1
 --- !u!1 &592924499
 GameObject:
   m_ObjectHideFlags: 0
@@ -2085,7 +2094,6 @@ GameObject:
   m_Component:
   - component: {fileID: 643264733}
   - component: {fileID: 643264729}
-  - component: {fileID: 643264732}
   - component: {fileID: 643264731}
   - component: {fileID: 643264734}
   m_Layer: 5
@@ -2190,14 +2198,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!81 &643264732
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 643264728}
-  m_Enabled: 1
 --- !u!4 &643264733
 Transform:
   m_ObjectHideFlags: 0
@@ -2722,7 +2722,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &861626490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4711,6 +4711,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Boss2
+      objectReference: {fileID: 0}
+    - target: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1036677577332984383, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
