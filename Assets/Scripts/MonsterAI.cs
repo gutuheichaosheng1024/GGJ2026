@@ -112,7 +112,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    void Update()
+    protected virtual void Update()
     {
         if (isDead || target == null)
         {
@@ -142,7 +142,7 @@ public class MonsterAI : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (isDead || target == null)
         {

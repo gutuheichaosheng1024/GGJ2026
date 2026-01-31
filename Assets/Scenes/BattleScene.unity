@@ -1481,8 +1481,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e50860275cc9dee46a7cbd6be2e57f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  currentHealth: 10
+  maxHealth: 100
+  currentHealth: 100
   maxSan: 60
   currentSan: 60
   moveSpeed: 1
@@ -4326,6 +4326,119 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1382832488}
   m_CullTransparentMesh: 0
+--- !u!1 &1416717050 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 22930631506241402, guid: 2c58227970bf1b84095e3c91e593ee07,
+    type: 3}
+  m_PrefabInstance: {fileID: 2139052836}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1416717055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1416717050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5bef4942c283bb4c9c0e5d55e7dc048, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTag: Player
+  target: {fileID: 569619738}
+  moveSpeed: 1
+  stopDistance: 1.2
+  forceKinematic: 1
+  freezeRotation: 1
+  attackRange: 5
+  attackDamage: 10
+  attackCooldown: 1
+  maxHealth: 50
+  currentHealth: 50
+  flashProperty: _FlashAmount
+  flashDuration: 0.08
+  knockbackDistance: 0.05
+  knockbackDuration: 0.08
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  hitVfxPrefab: {fileID: 100000, guid: 6711cc85fa4e492428ae9f2619f37c70, type: 3}
+  hitVfxOffset: {x: 0, y: 0, z: 0}
+  hitVfxLifetime: 1
+  animator: {fileID: 0}
+  moveBool: IsMoving
+  attackTrigger: Attack
+  deathTrigger: Die
+  deathDestroyDelay: 1
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  normalAttackDamage: 2
+  attackSpeed: 0.65
+  attackRangeOverride: 1.2
+  playerLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  logDebug: 0
+  logSpeedDebug: 1
+  rotateBossToTarget: 0
+  startPhased: 0
+  tentacleWindup: 0.5
+  tentacleAngle: 90
+  tentacleRadius: 1.2
+  tentaclePhases: 1
+  chargeWindup: 1.5
+  chargeDistance: 6
+  chargeSpeed: 20
+  chargeBoxSize: {x: 1.6, y: 2}
+  chargeCooldown: 6
+  chargeOnlyBelowHalf: 0
+  chargeDistanceMatchesTelegraph: 1
+  chargeDamageOnContact: 1
+  chargeUseTriggerDuringDash: 1
+  stompWindup: 1.5
+  stompAngle: 120
+  stompRadius: 4
+  stompWaves: 3
+  stompWaveInterval: 0.25
+  stompWaveDamage: 3
+  arenaCenter: {fileID: 0}
+  summonPoints: []
+  summonOffsets:
+  - {x: -2, y: 0, z: 0}
+  - {x: 2, y: 0, z: 0}
+  - {x: 0, y: 2, z: 0}
+  cultistPrefab: {fileID: 22930631506241402, guid: d1230575cfa8df746be9642d1350d292,
+    type: 3}
+  cultistCount: 3
+  cultistMaxHealth: 6
+  telegraphMaterial: {fileID: 0}
+  telegraphColor: {r: 1, g: 0.25, b: 0.25, a: 0.32156864}
+  telegraphSortingLayer: Default
+  telegraphSortingOrder: 5
+  phasedAlpha: 0.16
+  maxPhasedDuration: 5
 --- !u!1 &1514680299
 GameObject:
   m_ObjectHideFlags: 0
@@ -25110,7 +25223,22 @@ PrefabInstance:
     - target: {fileID: 22930631506241402, guid: 2c58227970bf1b84095e3c91e593ee07,
         type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 518075871088854595, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_Simulated
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 518075871088854595, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_AngularDrag
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518075871088854595, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_GravityScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 806457607154873089, guid: 2c58227970bf1b84095e3c91e593ee07,
         type: 3}
@@ -25125,7 +25253,12 @@ PrefabInstance:
     - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 2
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1036677577332984383, guid: 2c58227970bf1b84095e3c91e593ee07,
         type: 3}
@@ -25182,10 +25315,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2047814809008436280, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2047814809008436280, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2047814809008436280, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 22930631506241402, guid: 2c58227970bf1b84095e3c91e593ee07,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1416717055}
   m_SourcePrefab: {fileID: 100100000, guid: 2c58227970bf1b84095e3c91e593ee07, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
