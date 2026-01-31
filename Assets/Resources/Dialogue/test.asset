@@ -17,6 +17,8 @@ MonoBehaviour:
     isPlayer: 1
   - content: "\u597D\u7684"
     isPlayer: 0
+  - content: 66666666669666
+    isPlayer: 0
   defaultTypingSpeed: 0.5
   defaultTypeSound: {fileID: 0}
   autoAdvance: 0

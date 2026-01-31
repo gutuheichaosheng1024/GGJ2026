@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,8 +20,14 @@ public class DialogueUI : MonoBehaviour
     private Talkable _currentTalk = null;
 
     private Coroutine talkCoroutine;
-    private bool isTalking = false;
-    private bool NextTalk = false;
+    private enum DialogState
+    {
+        Free = 0,
+        Talking = 1,
+        EndTalking = 2,
+        WaitForEnd = 3,
+    }
+    private DialogState _state;
     private int _currentLine;
     private string fullText;
     private void Awake()
@@ -39,22 +46,21 @@ public class DialogueUI : MonoBehaviour
 
     private void StartTalk()
     {
-        if (!_currentTalk || _currentTalk._index > _currentTalk._data.Length && isTalking) return;
-        isTalking = true;
+        if (!_currentTalk || _currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
+        _state = DialogState.Talking;
         //初始化聊天准备
         currentTalkCanvas.SetActive(true);
         otherSign.GetComponent<Image>().sprite = _currentTalk.speakerPortrait;
         TextMeshProUGUI oTextMeshProUGUI = otherSign.transform.GetComponentInChildren<TextMeshProUGUI>();
         oTextMeshProUGUI.text = _currentTalk.speakerName;
-        Debug.Log(oTextMeshProUGUI.text + "  " + _currentTalk.speakerName);
         oTextMeshProUGUI.color = _currentTalk.nameColor;
 
         playerSign.GetComponent<Image>().sprite = GetComponent<Talkable>().speakerPortrait;
         TextMeshProUGUI pTextMeshProUGUI = playerSign.transform.GetComponentInChildren<TextMeshProUGUI>();
         pTextMeshProUGUI.text = GetComponent<Talkable>().speakerName;
         pTextMeshProUGUI.color = GetComponent<Talkable>().nameColor;
-        Debug.Log(pTextMeshProUGUI.text + "  " + GetComponent<Talkable>().speakerName);
         GetComponent<Player>().StopMove();
+
 
         _currentLine = 0;
         fullText = _currentTalk._data[_currentTalk._index].dialogueLines[_currentLine].content;
@@ -91,6 +97,7 @@ public class DialogueUI : MonoBehaviour
 
         talkCoroutine = null;
         // 协程执行完毕后，将引用置为null
+        _state = DialogState.EndTalking;
         Judge();
     }
 
@@ -102,6 +109,7 @@ public class DialogueUI : MonoBehaviour
             StopCoroutine(talkCoroutine);
             textArea.text = fullText; // 直接显示完整文本
             talkCoroutine = null;
+            _state = DialogState.EndTalking;
         }
         Judge();
     }
@@ -116,20 +124,28 @@ public class DialogueUI : MonoBehaviour
             if (_currentTalk._data[_currentTalk._index].autoAdvance)
             {
                 talkCoroutine = StartCoroutine(TypeText());
+                _state = DialogState.Talking;
             }
-            else
-            {
-                NextTalk = true;
-            }
-
         }
         else//此次对话结束
         {
-            _currentTalk._index++;
-            GetComponent<Player>().StartMove();
-            currentTalkCanvas.SetActive(false);
-            isTalking = false; 
+            if (_currentTalk._data[_currentTalk._index].autoAdvance)
+            {
+                EndTalk();
+            }
+            else
+            {
+                _state = DialogState.WaitForEnd;
+            }
         }
+    }
+
+    private void EndTalk()
+    {
+        _currentTalk._index++;
+        GetComponent<Player>().StartMove();
+        currentTalkCanvas.SetActive(false);
+        _state = DialogState.Free;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -143,10 +159,22 @@ public class DialogueUI : MonoBehaviour
         {
             StartTalk();
         }
-        if(Input.GetKeyDown(KeyCode.Mouse0) && NextTalk)
+        if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-            NextTalk = false;
-            talkCoroutine = StartCoroutine(TypeText());
+            if (_state == DialogState.EndTalking)
+            {
+                _state = DialogState.Talking;
+                talkCoroutine = StartCoroutine(TypeText());
+            }
+            else if(_state == DialogState.Talking)
+            {
+                SkipTyping();
+            }
+            else if(_state == DialogState.WaitForEnd)
+            {
+                EndTalk();
+            }
+
         }
     }
 

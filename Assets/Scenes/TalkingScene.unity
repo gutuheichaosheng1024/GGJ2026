@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 42412137}
   - component: {fileID: 42412139}
   - component: {fileID: 42412138}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: tree-pink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -496,6 +496,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 963194228}
+  - {fileID: 643264733}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &218002868
@@ -545,7 +546,7 @@ GameObject:
   - component: {fileID: 242968244}
   - component: {fileID: 242968246}
   - component: {fileID: 242968245}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: tree-pink (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -713,7 +714,7 @@ GameObject:
   - component: {fileID: 275394336}
   - component: {fileID: 275394335}
   - component: {fileID: 275394331}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: NPC
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1201,7 +1202,7 @@ GameObject:
   - component: {fileID: 391536138}
   - component: {fileID: 391536140}
   - component: {fileID: 391536139}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: bush
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1331,7 +1332,7 @@ GameObject:
   - component: {fileID: 511801516}
   - component: {fileID: 511801518}
   - component: {fileID: 511801517}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: sign (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1467,7 +1468,7 @@ GameObject:
   - component: {fileID: 569619739}
   - component: {fileID: 569619741}
   - component: {fileID: 569619740}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1663,10 +1664,33 @@ MonoBehaviour:
   currentHealth: 100
   maxSan: 100
   currentSan: 100
-  sanDrainPerSecond: 1
-  speed: 2
+  moveSpeed: 1
   dashTime: 0.5
   dashSpeed: 20
+  isMaskOn: 0
+  sanRegenPerSecond: 0.5
+  sanDrainMaskPerSecond: 3
+  maskBuff:
+    coneDamageAdd: 0
+    coneDamageMul: 1.1
+    coneRadiusAdd: 0
+    coneRadiusMul: 1
+    coneCooldownAdd: 0
+    coneCooldownMul: 0.9
+    circleDamageAdd: 0
+    circleDamageMul: 1
+    circleRadiusAdd: 0
+    circleRadiusMul: 1
+    circleCooldownAdd: 0
+    circleCooldownMul: 1
+    rangedDamageAdd: 0
+    rangedDamageMul: 1
+    rangedRangeAdd: 0
+    rangedRangeMul: 1
+    rangedCooldownAdd: 0
+    rangedCooldownMul: 1
+    moveSpeedAdd: 0
+    moveSpeedMul: 1
   onDeath:
     m_PersistentCalls:
       m_Calls: []
@@ -2050,6 +2074,161 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619244144}
   m_CullTransparentMesh: 1
+--- !u!1 &643264728
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 643264733}
+  - component: {fileID: 643264729}
+  - component: {fileID: 643264732}
+  - component: {fileID: 643264731}
+  - component: {fileID: 643264730}
+  m_Layer: 5
+  m_Name: UI_Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!20 &643264729
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643264728}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 20.78461
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60.000004
+  orthographic: 1
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 32
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 0
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
+--- !u!114 &643264730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643264728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: c63173d146bfaba4297aed4ba08fd92b, type: 2}
+--- !u!114 &643264731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643264728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 1
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 32
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 1
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+--- !u!81 &643264732
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643264728}
+  m_Enabled: 1
+--- !u!4 &643264733
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 643264728}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 183448805}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &660550267
 GameObject:
   m_ObjectHideFlags: 0
@@ -2119,8 +2298,8 @@ Canvas:
   m_GameObject: {fileID: 660550267}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 643264729}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -2549,7 +2728,7 @@ GameObject:
   - component: {fileID: 906323695}
   - component: {fileID: 906323697}
   - component: {fileID: 906323696}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: rock-monument (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2679,7 +2858,7 @@ GameObject:
   - component: {fileID: 931490019}
   - component: {fileID: 931490020}
   - component: {fileID: 931490021}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2815,7 +2994,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 23
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -2858,11 +3037,12 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_Cameras: []
+  m_Cameras:
+  - {fileID: 643264729}
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
@@ -2911,7 +3091,7 @@ GameObject:
   - component: {fileID: 1062578658}
   - component: {fileID: 1062578660}
   - component: {fileID: 1062578659}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: trunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3132,7 +3312,7 @@ GameObject:
   - component: {fileID: 1095611883}
   - component: {fileID: 1095611885}
   - component: {fileID: 1095611884}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: trunk (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3262,7 +3442,7 @@ GameObject:
   - component: {fileID: 1114663762}
   - component: {fileID: 1114663764}
   - component: {fileID: 1114663763}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: rock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3660,7 +3840,7 @@ GameObject:
   - component: {fileID: 1248726563}
   - component: {fileID: 1248726565}
   - component: {fileID: 1248726564}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: rock (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3829,7 +4009,7 @@ GameObject:
   - component: {fileID: 1339971128}
   - component: {fileID: 1339971130}
   - component: {fileID: 1339971129}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: sign (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4168,8 +4348,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.18395233, g: 0.25838244, b: 0.44654083, a: 1}
+  m_Material: {fileID: 2100000, guid: 780404188658ccc4d96a6a43f05cb892, type: 2}
+  m_Color: {r: 0, g: 0.2835822, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4254,7 +4434,7 @@ GameObject:
   - component: {fileID: 1539168354}
   - component: {fileID: 1539168355}
   - component: {fileID: 1539168356}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: rock-monument
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4384,7 +4564,7 @@ GameObject:
   - component: {fileID: 1540443136}
   - component: {fileID: 1540443138}
   - component: {fileID: 1540443137}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: tree-pink (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4589,7 +4769,7 @@ GameObject:
   - component: {fileID: 1568742985}
   - component: {fileID: 1568742987}
   - component: {fileID: 1568742986}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: sign (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4794,7 +4974,7 @@ GameObject:
   - component: {fileID: 1635707490}
   - component: {fileID: 1635707492}
   - component: {fileID: 1635707491}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24094,8 +24274,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.90800005, g: 0.24871305, b: 0.52506095, a: 1}
+  m_Material: {fileID: 2100000, guid: 780404188658ccc4d96a6a43f05cb892, type: 2}
+  m_Color: {r: 1, g: 0, b: 0.015302181, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -24409,7 +24589,7 @@ GameObject:
   - component: {fileID: 1998538635}
   - component: {fileID: 1998538637}
   - component: {fileID: 1998538636}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: tree-pink (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24614,7 +24794,7 @@ GameObject:
   - component: {fileID: 2099966915}
   - component: {fileID: 2099966917}
   - component: {fileID: 2099966916}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: bush (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24744,7 +24924,7 @@ GameObject:
   - component: {fileID: 2118023098}
   - component: {fileID: 2118023100}
   - component: {fileID: 2118023099}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: sign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
