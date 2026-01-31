@@ -47,6 +47,12 @@ public class BossAI2 : MonoBehaviour
     public Vector3 hitVfxOffset;
     public float hitVfxLifetime = 1.0f;
 
+    [Header("Hit SFX")]
+    public AudioSource hitAudioSource;
+    public AudioClip[] hitClips;
+    public float hitSfxCooldown = 0.1f;
+    public Vector2 hitPitchRange = new Vector2(0.95f, 1.05f);
+
     [Header("Animation")]
     public Animator animator;
     public string moveBool = "IsMoving";
@@ -143,6 +149,7 @@ public class BossAI2 : MonoBehaviour
     MaterialPropertyBlock block;
     int flashPropId;
     Coroutine flashRoutine;
+    float lastHitSfxTime;
 
     float knockbackTime;
     float knockbackElapsed;
@@ -183,6 +190,11 @@ public class BossAI2 : MonoBehaviour
         block = new MaterialPropertyBlock();
         flashPropId = Shader.PropertyToID(flashProperty);
         SetFlashAmount(0f);
+
+        if (hitAudioSource == null)
+        {
+            hitAudioSource = GetComponent<AudioSource>();
+        }
 
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         SetupTelegraphs();
@@ -838,6 +850,7 @@ public class BossAI2 : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth - amount, 0f, maxHealth);
         TriggerFlash();
         SpawnHitVfx(hitDir);
+        PlayHitSfx();
         StartKnockback(hitDir);
         isCharging = false;
         shouldMove = false;
@@ -882,6 +895,30 @@ public class BossAI2 : MonoBehaviour
         {
             Destroy(vfx, hitVfxLifetime);
         }
+    }
+
+    void PlayHitSfx()
+    {
+        if (hitAudioSource == null || hitClips == null || hitClips.Length == 0)
+        {
+            return;
+        }
+
+        if (Time.time - lastHitSfxTime < hitSfxCooldown)
+        {
+            return;
+        }
+
+        AudioClip clip = hitClips.Length == 1 ? hitClips[0] : hitClips[Random.Range(0, hitClips.Length)];
+        if (clip == null)
+        {
+            return;
+        }
+
+        lastHitSfxTime = Time.time;
+        float pitch = Random.Range(hitPitchRange.x, hitPitchRange.y);
+        hitAudioSource.pitch = pitch;
+        hitAudioSource.PlayOneShot(clip);
     }
 
     IEnumerator FlashCoroutine()
