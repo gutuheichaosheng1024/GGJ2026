@@ -6,6 +6,8 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class PlayerStatus : MonoBehaviour
 {
+    public static string Pname = "Player";
+
     [Header("Health")]
     public float maxHealth = 100f;
     public float currentHealth = 100f;

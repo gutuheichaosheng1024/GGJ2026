@@ -57,7 +57,7 @@ public class DialogueUI : MonoBehaviour
 
         playerSign.GetComponent<Image>().sprite = GetComponent<Talkable>().speakerPortrait;
         TextMeshProUGUI pTextMeshProUGUI = playerSign.transform.GetComponentInChildren<TextMeshProUGUI>();
-        pTextMeshProUGUI.text = GetComponent<Talkable>().speakerName;
+        pTextMeshProUGUI.text = PlayerStatus.Pname;
         pTextMeshProUGUI.color = GetComponent<Talkable>().nameColor;
         GetComponent<Player>().StopMove();
 
