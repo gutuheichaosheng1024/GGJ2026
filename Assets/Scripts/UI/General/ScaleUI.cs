@@ -33,4 +33,9 @@ public class ScaleUI : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
         rectTransform.DOScale(originScale, scaleTime);
     }
 
+    private void OnDisable()
+    {
+        rectTransform.DOScale(originScale, .01f);
+    }
+
 }

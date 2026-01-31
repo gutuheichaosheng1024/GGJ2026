@@ -51,14 +51,7 @@ public class DialogueUI : MonoBehaviour
         //初始化聊天准备
         currentTalkCanvas.SetActive(true);
         otherSign.GetComponent<Image>().sprite = _currentTalk.speakerPortrait;
-        TextMeshProUGUI oTextMeshProUGUI = otherSign.transform.GetComponentInChildren<TextMeshProUGUI>();
-        oTextMeshProUGUI.text = _currentTalk.speakerName;
-        oTextMeshProUGUI.color = _currentTalk.nameColor;
-
         playerSign.GetComponent<Image>().sprite = GetComponent<Talkable>().speakerPortrait;
-        TextMeshProUGUI pTextMeshProUGUI = playerSign.transform.GetComponentInChildren<TextMeshProUGUI>();
-        pTextMeshProUGUI.text = PlayerStatus.Pname;
-        pTextMeshProUGUI.color = GetComponent<Talkable>().nameColor;
         GetComponent<Player>().StopMove();
 
 
@@ -74,11 +67,17 @@ public class DialogueUI : MonoBehaviour
         {
             playerSign.SetActive(true);
             otherSign.SetActive(false);
+            TextMeshProUGUI textMeshProUGUI = textArea.transform.GetComponentInChildren<TextMeshProUGUI>();
+            textMeshProUGUI.text = PlayerStatus.Pname;
+            textMeshProUGUI.color = GetComponent<Talkable>().nameColor;
         }
         else
         {
             playerSign.SetActive(false);
             otherSign.SetActive(true);
+            TextMeshProUGUI textMeshProUGUI = textArea.transform.GetComponentInChildren<TextMeshProUGUI>();
+            textMeshProUGUI.text = _currentTalk.speakerName;
+            textMeshProUGUI.color = _currentTalk.nameColor;
         }
         textArea.text = "";
         int NewLine = 15;
