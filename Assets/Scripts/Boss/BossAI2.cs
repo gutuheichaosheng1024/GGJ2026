@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [DisallowMultipleComponent]
-public class BossAI : MonsterAI
+public class BossAI2 : MonoBehaviour
 {
     public enum BossState
     {
@@ -14,14 +15,54 @@ public class BossAI : MonsterAI
         Dead
     }
 
+    [Header("Target")]
+    public string playerTag = "Player";
+    public Transform target;
+
+    [Header("Movement")]
+    public float moveSpeed = 2f;
+    public float stopDistance = 1.2f;
+    [Tooltip("Force kinematic movement to avoid spinning from collisions.")]
+    public bool forceKinematic = true;
+    [Tooltip("Prevent rotation from physics.")]
+    public bool freezeRotation = true;
+
+    [Header("Health")]
+    public float maxHealth = 40f;
+    public float currentHealth = 40f;
+
+    [Header("Hit Flash (Material)")]
+    [Tooltip("Float property name on the material/shader (e.g. FlashAmount).")]
+    public string flashProperty = "FlashAmount";
+    public float flashDuration = 0.08f;
+
+    [Header("Hit Knockback")]
+    public float knockbackDistance = 0.4f;
+    public float knockbackDuration = 0.08f;
+    [Tooltip("0-1 time to 0-1 distance. Ease-out by default.")]
+    public AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Hit VFX")]
+    public GameObject hitVfxPrefab;
+    public Vector3 hitVfxOffset;
+    public float hitVfxLifetime = 1.0f;
+
+    [Header("Animation")]
+    public Animator animator;
+    public string moveBool = "IsMoving";
+    public string attackTrigger = "Attack";
+    public string deathTrigger = "Die";
+    public float deathDestroyDelay = 1.0f;
+
+    [Header("Events")]
+    public UnityEvent onDeath;
+
     [Header("Boss Stats")]
     public float normalAttackDamage = 2f;
     [Tooltip("Attacks per second. 0.65 ~= 1.54s cooldown.")]
     public float attackSpeed = 0.65f;
     public float attackRangeOverride = 2.2f;
     public LayerMask playerLayers = ~0;
-    public bool logDebug = false;
-    public bool logSpeedDebug = false;
     public bool rotateBossToTarget = false;
 
     [Header("Phase / Invulnerable")]
@@ -38,6 +79,7 @@ public class BossAI : MonsterAI
     public float chargeDistance = 6f;
     public float chargeSpeed = 10f;
     public Vector2 chargeBoxSize = new Vector2(1.6f, 5.5f);
+    public float chargeTriggerRange = 6f;
     public float chargeCooldown = 6f;
     public bool chargeOnlyBelowHalf = true;
     public bool chargeDistanceMatchesTelegraph = true;
@@ -77,46 +119,83 @@ public class BossAI : MonsterAI
     public float maxPhasedDuration = 5f;
 
     BossState state = BossState.Idle;
-    Rigidbody2D bossRb;
-    Collider2D bossCol;
+    Rigidbody2D rb;
+    Collider2D col;
+    bool isDead;
     bool isPhased;
     bool isSkillRunning;
     float nextAttackTime;
     float nextChargeTime;
     float phasedUntil;
-    Vector3 lastPos;
-    float lastSpeedLogTime;
+
+    bool triggered75;
+    bool triggered50;
+    bool triggered25;
+    readonly List<GameObject> summonedMinions = new List<GameObject>();
+
     Vector2 desiredVelocity;
     bool shouldMove;
     bool isCharging;
     Vector2 chargeDir;
     float chargeRemaining;
 
-    bool triggered75;
-    bool triggered50;
-    bool triggered25;
-    int activeSummonCount;
-    readonly List<GameObject> summonedMinions = new List<GameObject>();
+    SpriteRenderer[] spriteRenderers;
+    MaterialPropertyBlock block;
+    int flashPropId;
+    Coroutine flashRoutine;
+
+    float knockbackTime;
+    float knockbackElapsed;
+    Vector2 knockbackDir;
+    float knockbackTotal;
+    float knockbackPrevDist;
 
     GameObject coneTelegraph;
     MeshFilter coneFilter;
     MeshRenderer coneRenderer;
-
     GameObject rectTelegraph;
     MeshFilter rectFilter;
     MeshRenderer rectRenderer;
 
-    SpriteRenderer[] spriteRenderers;
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+
+        if (rb != null)
+        {
+            if (forceKinematic)
+            {
+                rb.bodyType = RigidbodyType2D.Kinematic;
+            }
+            if (freezeRotation)
+            {
+                rb.freezeRotation = true;
+                rb.angularVelocity = 0f;
+            }
+        }
+
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        block = new MaterialPropertyBlock();
+        flashPropId = Shader.PropertyToID(flashProperty);
+        SetFlashAmount(0f);
+
+        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        SetupTelegraphs();
+        SetPhased(startPhased);
+    }
 
     void Start()
     {
-        bossRb = GetComponent<Rigidbody2D>();
-        bossCol = GetComponent<Collider2D>();
-        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         if (onDeath != null)
         {
             onDeath.AddListener(OnBossDeath);
         }
+
         if (target == null)
         {
             GameObject go = GameObject.FindGameObjectWithTag(playerTag);
@@ -125,26 +204,16 @@ public class BossAI : MonsterAI
                 target = go.transform;
             }
         }
-
-        SetupTelegraphs();
-        SetPhased(startPhased);
-        lastPos = transform.position;
-        lastSpeedLogTime = Time.time;
     }
 
-    protected override void Update()
+    void Update()
     {
         if (isPhased && maxPhasedDuration > 0f && Time.time >= phasedUntil)
         {
             SetPhased(false);
         }
 
-        if (state == BossState.Dead)
-        {
-            return;
-        }
-
-        if (target == null)
+        if (isDead || target == null)
         {
             return;
         }
@@ -160,23 +229,15 @@ public class BossAI : MonsterAI
         }
 
         float distance = Vector2.Distance(transform.position, target.position);
-        if (logDebug)
-        {
-            Debug.Log($"[BossAI] state={state} skill={isSkillRunning} dist={distance:F2} range={attackRangeOverride:F2} move={moveSpeed:F2}");
-        }
-        if (logSpeedDebug && Time.time - lastSpeedLogTime >= 1f)
-        {
-            float dt = Mathf.Max(0.0001f, Time.time - lastSpeedLogTime);
-            float speed = Vector3.Distance(transform.position, lastPos) / dt;
-            Debug.Log($"[BossAI] realSpeed={speed:F2} timeScale={Time.timeScale:F2}");
-            lastPos = transform.position;
-            lastSpeedLogTime = Time.time;
-        }
-        if (distance <= attackRangeOverride)
+        bool canCharge = CanChargeNow();
+        bool inChargeRange = canCharge && distance <= chargeTriggerRange;
+        bool inAttackRange = distance <= attackRangeOverride;
+        if (inChargeRange || inAttackRange)
         {
             state = BossState.Attack;
             TryAttack();
             shouldMove = false;
+            SetMoving(false);
         }
         else
         {
@@ -185,24 +246,54 @@ public class BossAI : MonsterAI
                 state = BossState.Chase;
                 UpdateDesiredVelocity();
                 shouldMove = true;
+                SetMoving(true);
             }
             else
             {
                 shouldMove = false;
+                SetMoving(false);
             }
         }
     }
 
-    protected override void FixedUpdate()
+    void FixedUpdate()
     {
+        if (isDead || target == null)
+        {
+            return;
+        }
+
+        if (knockbackTime > 0f)
+        {
+            float dt = Time.fixedDeltaTime;
+            knockbackTime -= dt;
+            knockbackElapsed += dt;
+
+            float t = knockbackDuration > 0f ? Mathf.Clamp01(knockbackElapsed / knockbackDuration) : 1f;
+            float dist = knockbackCurve != null ? knockbackCurve.Evaluate(t) * knockbackTotal : t * knockbackTotal;
+            float delta = dist - knockbackPrevDist;
+            knockbackPrevDist = dist;
+
+            Vector2 step = knockbackDir * delta;
+            if (rb != null)
+            {
+                rb.MovePosition(rb.position + step);
+            }
+            else
+            {
+                transform.position += (Vector3)step;
+            }
+            return;
+        }
+
         if (isCharging)
         {
             float step = chargeSpeed * Time.fixedDeltaTime;
             chargeRemaining -= step;
             Vector2 delta = chargeDir * step;
-            if (bossRb != null)
+            if (rb != null)
             {
-                bossRb.MovePosition(bossRb.position + delta);
+                rb.MovePosition(rb.position + delta);
             }
             else
             {
@@ -221,7 +312,7 @@ public class BossAI : MonsterAI
             return;
         }
 
-        if (bossRb == null)
+        if (rb == null)
         {
             if (shouldMove)
             {
@@ -232,12 +323,12 @@ public class BossAI : MonsterAI
 
         if (shouldMove)
         {
-            Vector2 next = bossRb.position + desiredVelocity * Time.fixedDeltaTime;
-            bossRb.MovePosition(next);
+            Vector2 nextPosition = rb.position + desiredVelocity * Time.fixedDeltaTime;
+            rb.MovePosition(nextPosition);
         }
         else
         {
-            bossRb.velocity = Vector2.zero;
+            rb.velocity = Vector2.zero;
         }
     }
 
@@ -260,12 +351,12 @@ public class BossAI : MonsterAI
     void StopMovement()
     {
         shouldMove = false;
-        if (bossRb != null)
+        if (rb != null)
         {
-            bossRb.velocity = Vector2.zero;
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
     }
-
 
     void TryAttack()
     {
@@ -274,10 +365,7 @@ public class BossAI : MonsterAI
             return;
         }
 
-        float hp01 = currentHealth / Mathf.Max(1f, maxHealth);
-        bool canCharge = !chargeOnlyBelowHalf || hp01 <= 0.5f;
-
-        if (canCharge && Time.time >= nextChargeTime)
+        if (CanChargeNow())
         {
             StartCoroutine(DoCharge());
             nextChargeTime = Time.time + chargeCooldown;
@@ -289,6 +377,20 @@ public class BossAI : MonsterAI
 
         float cooldown = attackSpeed > 0f ? 1f / attackSpeed : 1.5f;
         nextAttackTime = Time.time + cooldown;
+    }
+
+    bool CanChargeNow()
+    {
+        if (chargeOnlyBelowHalf)
+        {
+            float hp01 = currentHealth / Mathf.Max(1f, maxHealth);
+            if (hp01 > 0.5f)
+            {
+                return false;
+            }
+        }
+
+        return Time.time >= nextChargeTime;
     }
 
     void TryTriggerThresholdSkills()
@@ -365,20 +467,21 @@ public class BossAI : MonsterAI
         float finalDistance = chargeDistanceMatchesTelegraph ? chargeBoxSize.y : chargeDistance;
         chargeRemaining = finalDistance;
         bool prevTrigger = false;
-        if (bossCol != null && chargeUseTriggerDuringDash)
+        if (col != null && chargeUseTriggerDuringDash)
         {
-            prevTrigger = bossCol.isTrigger;
-            bossCol.isTrigger = true;
+            prevTrigger = col.isTrigger;
+            col.isTrigger = true;
         }
+
         isCharging = true;
         while (isCharging)
         {
             yield return null;
         }
 
-        if (bossCol != null && chargeUseTriggerDuringDash)
+        if (col != null && chargeUseTriggerDuringDash)
         {
-            bossCol.isTrigger = prevTrigger;
+            col.isTrigger = prevTrigger;
         }
 
         isSkillRunning = false;
@@ -435,19 +538,12 @@ public class BossAI : MonsterAI
                 ai.maxHealth = cultistMaxHealth;
                 ai.currentHealth = cultistMaxHealth;
             }
-            activeSummonCount++;
             summonedMinions.Add(minion);
         }
 
         isSkillRunning = false;
         state = BossState.Chase;
         yield break;
-    }
-
-
-    void OnSummonMinionDeath()
-    {
-        activeSummonCount = Mathf.Max(0, activeSummonCount - 1);
     }
 
     void OnBossDeath()
@@ -501,9 +597,9 @@ public class BossAI : MonsterAI
     void SetPhased(bool on)
     {
         isPhased = on;
-        if (bossCol != null)
+        if (col != null)
         {
-            bossCol.enabled = !on;
+            col.enabled = !on;
         }
         if (isPhased && maxPhasedDuration > 0f)
         {
@@ -592,48 +688,6 @@ public class BossAI : MonsterAI
             hit = true;
         }
         return hit;
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!chargeDamageOnContact)
-        {
-            return;
-        }
-
-        if (!isSkillRunning)
-        {
-            return;
-        }
-
-        PlayerStatus ps = collision.collider.GetComponentInParent<PlayerStatus>();
-        if (ps == null)
-        {
-            return;
-        }
-
-        ps.AddHealth(-normalAttackDamage);
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (!chargeDamageOnContact)
-        {
-            return;
-        }
-
-        if (!isSkillRunning)
-        {
-            return;
-        }
-
-        PlayerStatus ps = other.GetComponentInParent<PlayerStatus>();
-        if (ps == null)
-        {
-            return;
-        }
-
-        ps.AddHealth(-normalAttackDamage);
     }
 
     void SetupTelegraphs()
@@ -739,7 +793,6 @@ public class BossAI : MonsterAI
         int[] tris = new int[6];
 
         float halfX = size.x * 0.5f;
-        float halfY = size.y * 0.5f;
         vertices[0] = new Vector3(-halfX, 0f, 0f);
         vertices[1] = new Vector3(halfX, 0f, 0f);
         vertices[2] = new Vector3(halfX, size.y, 0f);
@@ -768,5 +821,180 @@ public class BossAI : MonsterAI
         {
             rectTelegraph.SetActive(false);
         }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        ApplyHit(amount, Vector2.zero, false);
+    }
+
+    public void ApplyHit(float amount, Vector2 hitDir, bool isMelee)
+    {
+        if (isDead || isPhased)
+        {
+            return;
+        }
+
+        currentHealth = Mathf.Clamp(currentHealth - amount, 0f, maxHealth);
+        TriggerFlash();
+        SpawnHitVfx(hitDir);
+        StartKnockback(hitDir);
+        isCharging = false;
+        shouldMove = false;
+
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
+    }
+
+    void TriggerFlash()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            return;
+        }
+
+        if (flashRoutine != null)
+        {
+            StopCoroutine(flashRoutine);
+        }
+        flashRoutine = StartCoroutine(FlashCoroutine());
+    }
+
+    void SpawnHitVfx(Vector2 hitDir)
+    {
+        if (hitVfxPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 pos = transform.position + hitVfxOffset;
+        Quaternion rot = Quaternion.identity;
+        if (hitDir != Vector2.zero)
+        {
+            float z = Mathf.Atan2(hitDir.y, hitDir.x) * Mathf.Rad2Deg;
+            rot = Quaternion.Euler(0f, 0f, z);
+        }
+
+        GameObject vfx = Instantiate(hitVfxPrefab, pos, rot);
+        if (hitVfxLifetime > 0f)
+        {
+            Destroy(vfx, hitVfxLifetime);
+        }
+    }
+
+    IEnumerator FlashCoroutine()
+    {
+        SetFlashAmount(1f);
+        yield return new WaitForSecondsRealtime(flashDuration);
+        SetFlashAmount(0f);
+    }
+
+    void SetFlashAmount(float value)
+    {
+        if (spriteRenderers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            SpriteRenderer sr = spriteRenderers[i];
+            if (sr == null)
+            {
+                continue;
+            }
+
+            sr.GetPropertyBlock(block);
+            block.SetFloat(flashPropId, value);
+            sr.SetPropertyBlock(block);
+        }
+    }
+
+    void StartKnockback(Vector2 hitDir)
+    {
+        if (knockbackDistance <= 0f || knockbackDuration <= 0f)
+        {
+            return;
+        }
+
+        if (hitDir == Vector2.zero)
+        {
+            if (target != null)
+            {
+                hitDir = (transform.position - target.position);
+            }
+        }
+
+        if (hitDir == Vector2.zero)
+        {
+            return;
+        }
+
+        knockbackDir = hitDir.normalized;
+        knockbackTotal = knockbackDistance;
+        knockbackTime = knockbackDuration;
+        knockbackElapsed = 0f;
+        knockbackPrevDist = 0f;
+    }
+
+    void Die()
+    {
+        isDead = true;
+        StopMovement();
+
+        if (col != null)
+        {
+            col.enabled = false;
+        }
+
+        if (animator != null && !string.IsNullOrEmpty(deathTrigger))
+        {
+            animator.SetTrigger(deathTrigger);
+        }
+
+        onDeath?.Invoke();
+        Destroy(gameObject, deathDestroyDelay);
+    }
+
+    void SetMoving(bool isMoving)
+    {
+        if (animator != null && !string.IsNullOrEmpty(moveBool))
+        {
+            animator.SetBool(moveBool, isMoving);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!chargeDamageOnContact || !isCharging)
+        {
+            return;
+        }
+
+        PlayerStatus ps = collision.collider.GetComponentInParent<PlayerStatus>();
+        if (ps == null)
+        {
+            return;
+        }
+
+        ps.AddHealth(-normalAttackDamage);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!chargeDamageOnContact || !isCharging)
+        {
+            return;
+        }
+
+        PlayerStatus ps = other.GetComponentInParent<PlayerStatus>();
+        if (ps == null)
+        {
+            return;
+        }
+
+        ps.AddHealth(-normalAttackDamage);
     }
 }

@@ -63,6 +63,17 @@ public class Bullet : MonoBehaviour
             {
                 Destroy(gameObject);
             }
+            return;
+        }
+
+        BossAI2 boss = other.GetComponentInParent<BossAI2>();
+        if (boss != null)
+        {
+            boss.TakeDamage(damage);
+            if (hitMode == HitMode.HitFirst)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

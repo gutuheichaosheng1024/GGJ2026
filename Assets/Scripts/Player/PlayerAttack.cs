@@ -348,6 +348,14 @@ public class PlayerAttack : MonoBehaviour
             {
                 monster.ApplyHit(damage, toTarget.normalized, true);
                 hitAny = true;
+                continue;
+            }
+
+            BossAI2 boss = hits[i].GetComponentInParent<BossAI2>();
+            if (boss != null)
+            {
+                boss.ApplyHit(damage, toTarget.normalized, true);
+                hitAny = true;
             }
         }
 
