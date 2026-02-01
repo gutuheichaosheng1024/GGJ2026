@@ -26,7 +26,10 @@ namespace Manager
             Eslider = transform.Find("Effect").GetComponent<Slider>();
 
             Bslider.value = _data.BackgroundVolume;
-            Bslider.onValueChanged.AddListener(value => _data.BackgroundVolume = value);
+            Bslider.onValueChanged.AddListener(value => {
+                _data.BackgroundVolume = value;
+                SoundManager.audioSource.volume = value;
+            });
 
             Eslider.value = _data.EffectVolume;
             Eslider.onValueChanged.AddListener(value => _data.EffectVolume = value);

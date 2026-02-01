@@ -80,6 +80,26 @@ public class DialogueUI : MonoBehaviour
     }
 
 
+    public void StartTalk(Talkable target, Sprite playerSprite)
+    {
+        _currentTalk = target;
+        _otherTalk = null;
+        if (_currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
+        _state = DialogState.Talking;
+        //初始化聊天准备
+        currentTalkCanvas.SetActive(true);
+        otherSign.GetComponent<Image>().sprite = _currentTalk.speakerPortrait;
+
+        playerSign.GetComponent<Image>().sprite = playerSprite;
+        GetComponent<Player>().StopMove();
+
+        _currentLine = 0;
+        fullText = _currentTalk._data[_currentTalk._index].dialogueLines[_currentLine].content;
+
+        talkCoroutine = StartCoroutine(TypeText());
+    }
+
+
     IEnumerator TypeText()
     {
         if (_currentTalk._data[_currentTalk._index].dialogueLines[_currentLine].isPlayer)
