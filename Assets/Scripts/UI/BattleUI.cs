@@ -87,6 +87,7 @@ public class BattleUI : MonoBehaviour
                     break;
                 case 1:
                     DialogueUI.Instance.StartTalk(talkable_main, playerHeader[killingIndex]);
+                    bossRef?.SetActive(true);
                     break;
             }
             killingIndex++;
