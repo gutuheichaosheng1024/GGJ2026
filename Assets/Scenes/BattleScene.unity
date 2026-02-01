@@ -4108,6 +4108,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8741431932123605522, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
+      propertyPath: talkOnDeath_Main
+      value: 
+      objectReference: {fileID: 1261175140}
+    - target: {fileID: 8741431932123605522, guid: 741fc4ca536a8b54087ce3f528588b99,
+        type: 3}
+      propertyPath: talkOnDeath_other
+      value: 
+      objectReference: {fileID: 2025215757}
+    - target: {fileID: 8741431932123605522, guid: 741fc4ca536a8b54087ce3f528588b99,
+        type: 3}
       propertyPath: hitClips.Array.data[0]
       value: 
       objectReference: {fileID: 8300000, guid: d880c3cb03dc73b42ac2160c365164fa, type: 3}
