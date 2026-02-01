@@ -16,6 +16,7 @@ public class StartMenu : MonoBehaviour
     {
         startGame.onClick.AddListener(StartGame);
         exitGame.onClick.AddListener(() => Application.Quit());
+        Manager.SoundManager.PlayBackGroundSound("StartMenu");
     }
 
     void StartGame()

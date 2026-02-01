@@ -22,12 +22,17 @@ public class BattleUI : MonoBehaviour
     [Header("Kill Count")]
     public int kills;
     public TMP_Text killText;
-    List<int> Killingtrigger;
+
     [SerializeField] private Talkable talkable_main;
     [SerializeField] private Talkable talkable_other;
+    [SerializeField] private List<int> Killingtrigger;
+    [SerializeField] private GameObject bossRef;
+    private int killingIndex;
+    [SerializeField] private Sprite[] playerHeader;
 
     void Awake()
     {
+        Manager.SoundManager.PlayBackGroundSound("Boss");
         UpdateUI();
         if (gameOverRoot != null)
         {
@@ -51,6 +56,7 @@ public class BattleUI : MonoBehaviour
         if (gameOverRoot != null)
         {
             gameOverRoot.SetActive(true);
+            Manager.SoundManager.PlayBackGroundSound("Fail");
         }
 
         if (pauseOnShow)
@@ -70,6 +76,22 @@ public class BattleUI : MonoBehaviour
         if (killText != null)
         {
             killText.text = "击杀: " + kills;
+        }
+        if (killingIndex < Killingtrigger.Count && Killingtrigger[killingIndex] <= kills)
+        {
+            switch (killingIndex)
+            {
+                case 0:
+                    DialogueUI.Instance.StartTalk(talkable_main, playerHeader[killingIndex]);
+                    break;
+                case 1:
+                    DialogueUI.Instance.StartTalk(talkable_main,talkable_other);
+                    break;
+                case 2:
+                    DialogueUI.Instance.StartTalk(talkable_main,playerHeader[killingIndex]);
+                    break;
+            }
+            killingIndex++;
         }
     }
 
