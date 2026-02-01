@@ -92,4 +92,5 @@ public class BattleUI : MonoBehaviour
     }
     public void OnSanChange(float value)=>sanSlider.value = value;
 
+    
 }

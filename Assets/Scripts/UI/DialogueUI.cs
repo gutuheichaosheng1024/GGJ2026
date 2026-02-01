@@ -37,7 +37,7 @@ public class DialogueUI : MonoBehaviour
     public static DialogueUI _instance;
     public static DialogueUI Instance => _instance;
 
-    public Action<bool> DialogEnd;
+    public Action<int> DialogEnd;
 
     private void Awake()
     {
@@ -54,7 +54,7 @@ public class DialogueUI : MonoBehaviour
         currentTalkCanvas.SetActive(false);
     }
 
-    private void StartTalk(Talkable target,Talkable _other = null)
+    public void StartTalk(Talkable target,Talkable _other = null)
     {
         _currentTalk = target;
         _otherTalk = _other;
@@ -79,20 +79,6 @@ public class DialogueUI : MonoBehaviour
         talkCoroutine = StartCoroutine(TypeText());
     }
 
-    public void BeginTalk(Talkable target)
-    {
-        if (target == null)
-        {
-            return;
-        }
-
-        if (_state != DialogState.Free && _state != DialogState.WaitForEnd)
-        {
-            return;
-        }
-
-        StartTalk(target);
-    }
 
     IEnumerator TypeText()
     {
@@ -183,9 +169,8 @@ public class DialogueUI : MonoBehaviour
 
     private void EndTalk()
     {
+        DialogEnd?.Invoke(_currentTalk._index);
         _currentTalk._index++;
-        if (_currentTalk._index >= _currentTalk._data.Length) DialogEnd?.Invoke(true);
-        else DialogEnd?.Invoke(false);
         _currentTalk = _otherTalk = null;
         GetComponent<Player>().StartMove();
         currentTalkCanvas.SetActive(false);

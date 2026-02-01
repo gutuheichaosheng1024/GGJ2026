@@ -128,7 +128,8 @@ public class BossAI2 : MonoBehaviour
 
     [Header("Dialogue")]
     public bool triggerDialogueOnDeath = true;
-    public Talkable talkOnDeath;
+    public Talkable talkOnDeath_other;
+    public Talkable talkOnDeath_Main;
 
     [Header("BGM")]
     public BgmStoryManager bgmManager;
@@ -1040,13 +1041,9 @@ public class BossAI2 : MonoBehaviour
             return;
         }
 
-        if (talkOnDeath == null || DialogueUI.Instance == null)
-        {
-            return;
-        }
 
         deathDialogueTriggered = true;
-        DialogueUI.Instance.BeginTalk(talkOnDeath);
+        DialogueUI.Instance.StartTalk(talkOnDeath_Main,talkOnDeath_other);
     }
 
     void SetMoving(bool isMoving)
