@@ -28,6 +28,8 @@ public class PlayerStatus : MonoBehaviour
     [Tooltip("Sanity drain per second when mask is ON (positive).")]
     public float sanDrainMaskPerSecond = 3f;
     public MaskBuff maskBuff = new MaskBuff();
+    public AudioSource maskAudioSource;
+    public AudioClip maskToggleClip;
 
     [Header("Potion")]
     public KeyCode potionKey = KeyCode.Alpha1;
@@ -74,6 +76,10 @@ public class PlayerStatus : MonoBehaviour
         {
             potionAudioSource = GetComponent<AudioSource>();
         }
+        if (maskAudioSource == null)
+        {
+            maskAudioSource = potionAudioSource;
+        }
         UpdatePotionUI();
     }
 
@@ -106,12 +112,14 @@ public class PlayerStatus : MonoBehaviour
     public void ToggleMask()
     {
         isMaskOn = !isMaskOn;
+        PlayMaskSfx();
         SyncPostFx();
     }
 
     public void SetMask(bool on)
     {
         isMaskOn = on;
+        PlayMaskSfx();
         SyncPostFx();
     }
 
@@ -205,6 +213,14 @@ public class PlayerStatus : MonoBehaviour
         if (potionCountText != null)
         {
             potionCountText.text = potionCount.ToString();
+        }
+    }
+
+    void PlayMaskSfx()
+    {
+        if (maskAudioSource != null && maskToggleClip != null)
+        {
+            maskAudioSource.PlayOneShot(maskToggleClip);
         }
     }
 
