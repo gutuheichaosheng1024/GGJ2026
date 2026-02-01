@@ -11,15 +11,15 @@ public class DialogueUI : MonoBehaviour
 {
     [SerializeField] private GameObject talkPrefab;
 
-    [SerializeField] private GameObject currentTalkCanvas;
+    [SerializeField] private static GameObject currentTalkCanvas;
 
-    private GameObject playerSign;
-    private GameObject otherSign;
-    private TextMeshProUGUI textArea;
+    private static GameObject playerSign;
+    private static GameObject otherSign;
+    private static TextMeshProUGUI textArea;
 
-    private Talkable _currentTalk = null;
+    private static Talkable _currentTalk = null;
 
-    private Coroutine talkCoroutine;
+    private static Coroutine talkCoroutine;
     private enum DialogState
     {
         Free = 0,
@@ -27,11 +27,18 @@ public class DialogueUI : MonoBehaviour
         EndTalking = 2,
         WaitForEnd = 3,
     }
-    private DialogState _state;
-    private int _currentLine;
-    private string fullText;
+    private static DialogState _state;
+    private static int _currentLine;
+    private static string fullText;
+
+
+    public static DialogueUI _instance;
+
+
+
     private void Awake()
     {
+        _instance = this;
         currentTalkCanvas = Instantiate(talkPrefab);
         Canvas parent = GameObject.FindAnyObjectByType<Canvas>();
         currentTalkCanvas.transform.SetParent(parent.transform,false);
@@ -44,9 +51,10 @@ public class DialogueUI : MonoBehaviour
         currentTalkCanvas.SetActive(false);
     }
 
-    private void StartTalk()
+    private void StartTalk(Talkable target)
     {
-        if (!_currentTalk || _currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
+        _currentTalk = target;
+        if (_currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
         _state = DialogState.Talking;
         //初始化聊天准备
         currentTalkCanvas.SetActive(true);
@@ -147,17 +155,17 @@ public class DialogueUI : MonoBehaviour
         _state = DialogState.Free;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        _currentTalk = collision.transform.GetComponent<Talkable>();
-    }
+    //private void OnCollisionEnter2D(Collision2D collision)
+    //{
+    //    _currentTalk = collision.transform.GetComponent<Talkable>();
+    //}
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            StartTalk();
-        }
+        //if (Input.GetKeyDown(KeyCode.E))
+        //{
+        //    StartTalk();
+        //}
         if(Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (_state == DialogState.EndTalking)
