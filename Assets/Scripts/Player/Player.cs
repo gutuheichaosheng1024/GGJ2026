@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     new private Rigidbody2D rigidbody;
     private Animator animator;
     private float inputX, inputY;
+    private float facingX = 1f;
     private Vector3 offset;
 
     //冲刺计算属性
@@ -50,6 +51,14 @@ public class Player : MonoBehaviour
 
         inputX = Input.GetAxisRaw("Horizontal");
         inputY = Input.GetAxisRaw("Vertical");
+        if (inputX < -0.01f)
+        {
+            facingX = -1f;
+        }
+        else if (inputX > 0.01f)
+        {
+            facingX = 1f;
+        }
         Vector2 input = (inputX * transform.right + inputY * transform.up).normalized;
         rigidbody.velocity = input * PlayerStatus.Instance.GetMoveSpeed();
         if (input != Vector2.zero)
@@ -60,7 +69,7 @@ public class Player : MonoBehaviour
         {
             animator.SetBool("IsMoving", false);
         }
-        animator.SetFloat("InputX", inputX);
+        animator.SetFloat("InputX", facingX);
         animator.SetFloat("InputY", inputY);
         Camera.main.transform.position = transform.position + offset;
     }
