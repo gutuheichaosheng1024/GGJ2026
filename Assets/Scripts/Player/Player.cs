@@ -18,7 +18,7 @@ public class Player : MonoBehaviour
     //冲刺计算属性
     private float dashTimer = 0.0f;
 
-    void Start()
+    void Awake()
     {
         offset = Camera.main.transform.position - transform.position; 
         rigidbody = GetComponent<Rigidbody2D>();

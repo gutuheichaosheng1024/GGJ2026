@@ -30,7 +30,7 @@ public class BattleUI : MonoBehaviour
     private int killingIndex;
     [SerializeField] private Sprite[] playerHeader;
 
-    void Awake()
+    void Start()
     {
         Manager.SoundManager.PlayBackGroundSound("Boss");
         UpdateUI();
@@ -49,6 +49,7 @@ public class BattleUI : MonoBehaviour
         sanSlider.maxValue = PlayerStatus.Instance.maxSan;
         sanSlider.value = sanSlider.maxValue;
         PlayerStatus.Instance.onSanChange += OnSanChange;
+        DialogueUI.Instance.StartTalk(talkable_main, playerHeader[0]);
 
     }
     public void GameOver()
@@ -82,13 +83,10 @@ public class BattleUI : MonoBehaviour
             switch (killingIndex)
             {
                 case 0:
-                    DialogueUI.Instance.StartTalk(talkable_main, playerHeader[killingIndex]);
+                    DialogueUI.Instance.StartTalk(talkable_main, talkable_other);
                     break;
                 case 1:
-                    DialogueUI.Instance.StartTalk(talkable_main,talkable_other);
-                    break;
-                case 2:
-                    DialogueUI.Instance.StartTalk(talkable_main,playerHeader[killingIndex]);
+                    DialogueUI.Instance.StartTalk(talkable_main, playerHeader[killingIndex]);
                     break;
             }
             killingIndex++;

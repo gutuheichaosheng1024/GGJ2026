@@ -16,6 +16,7 @@ public class DialogueUI : MonoBehaviour
 
     private static GameObject playerSign;
     private static GameObject otherSign;
+    private static TextMeshProUGUI NameArea;
     private static TextMeshProUGUI textArea;
 
     private static Talkable _currentTalk = null;
@@ -49,6 +50,9 @@ public class DialogueUI : MonoBehaviour
         playerSign = currentTalkCanvas.transform.Find("PlayerSign").gameObject;
         otherSign = currentTalkCanvas.transform.Find("OtherSign").gameObject;
         textArea = currentTalkCanvas.transform.Find("TextArea").GetComponent<TextMeshProUGUI>();
+        textArea.color = Color.black;
+        NameArea = textArea.transform.Find("Name").GetComponent<TextMeshProUGUI>();
+
         otherSign.SetActive(false);
         playerSign.SetActive(false);
         currentTalkCanvas.SetActive(false);
@@ -56,6 +60,7 @@ public class DialogueUI : MonoBehaviour
 
     public void StartTalk(Talkable target,Talkable _other = null)
     {
+        Time.timeScale = 0.0f;
         _currentTalk = target;
         _otherTalk = _other;
         if (_currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
@@ -82,6 +87,7 @@ public class DialogueUI : MonoBehaviour
 
     public void StartTalk(Talkable target, Sprite playerSprite)
     {
+        Time.timeScale = 0.0f;
         _currentTalk = target;
         _otherTalk = null;
         if (_currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
@@ -106,16 +112,15 @@ public class DialogueUI : MonoBehaviour
         {
             playerSign.SetActive(true);
             otherSign.SetActive(false);
-            TextMeshProUGUI textMeshProUGUI = textArea.transform.GetComponentInChildren<TextMeshProUGUI>();
             if (_otherTalk)
             {
-                textMeshProUGUI.text = _otherTalk.speakerName;
-                textMeshProUGUI.color = _otherTalk.nameColor;
+                NameArea.color = _otherTalk.nameColor;
+                NameArea.text = _otherTalk.speakerName;
             }
             else
             {
-                textMeshProUGUI.text = PlayerStatus.Pname;
-                textMeshProUGUI.color = GetComponent<Talkable>().nameColor;
+                NameArea.color = GetComponent<Talkable>().nameColor;
+                NameArea.text = PlayerStatus.Pname;
             }
 
         }
@@ -123,12 +128,11 @@ public class DialogueUI : MonoBehaviour
         {
             playerSign.SetActive(false);
             otherSign.SetActive(true);
-            TextMeshProUGUI textMeshProUGUI = textArea.transform.GetComponentInChildren<TextMeshProUGUI>();
-            textMeshProUGUI.text = _currentTalk.speakerName;
-            textMeshProUGUI.color = _currentTalk.nameColor;
+            NameArea.text = _currentTalk.speakerName;
+            NameArea.color = _currentTalk.nameColor;
         }
         textArea.text = "";
-        int NewLine = 15;
+        int NewLine = 30;
         int currentLine = 0;
         foreach (char c in fullText)
         {
@@ -141,6 +145,7 @@ public class DialogueUI : MonoBehaviour
                 textArea.text += "\n";
             }
         }
+        Debug.Log(NameArea.text + "   " + NameArea.color);
 
         talkCoroutine = null;
         // 协程执行完毕后，将引用置为null
@@ -154,7 +159,18 @@ public class DialogueUI : MonoBehaviour
         if (talkCoroutine != null)
         {
             StopCoroutine(talkCoroutine);
-            textArea.text = fullText; // 直接显示完整文本
+            int NewLine = 30;
+            int currentLine = 0;
+            foreach (char c in fullText)
+            {
+                textArea.text += c;
+                currentLine++;
+                if (currentLine == NewLine)
+                {
+                    currentLine = 0;
+                    textArea.text += "\n";
+                }
+            }
             talkCoroutine = null;
             _state = DialogState.EndTalking;
         }
@@ -189,6 +205,7 @@ public class DialogueUI : MonoBehaviour
 
     private void EndTalk()
     {
+        Time.timeScale = 1.0f;
         DialogEnd?.Invoke(_currentTalk._index);
         _currentTalk._index++;
         _currentTalk = _otherTalk = null;
