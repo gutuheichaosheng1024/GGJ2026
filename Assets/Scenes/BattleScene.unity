@@ -735,13 +735,13 @@ MonoBehaviour:
     coneDamageAdd: 0
     coneDamageMul: 2
     coneRadiusAdd: 0
-    coneRadiusMul: 2
+    coneRadiusMul: 1
     coneCooldownAdd: 0
     coneCooldownMul: 0.5
     circleDamageAdd: 0
     circleDamageMul: 2
     circleRadiusAdd: 0
-    circleRadiusMul: 2
+    circleRadiusMul: 1
     circleCooldownAdd: 0
     circleCooldownMul: 0.5
     moveSpeedAdd: 0
@@ -779,6 +779,7 @@ MonoBehaviour:
     damage: 1
     cooldown: 0.5
     meshSegments: 24
+    damageDelay: 0.2
     previewDuration: 0.15
     previewColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.4}
     previewMaterial: {fileID: 0}
@@ -791,6 +792,7 @@ MonoBehaviour:
     damage: 2
     cooldown: 1
     meshSegments: 24
+    damageDelay: 0.4
     previewDuration: 0.15
     previewColor: {r: 0.4, g: 0.4, b: 0.4, a: 0.4}
     previewMaterial: {fileID: 0}
@@ -806,6 +808,9 @@ MonoBehaviour:
       m_Calls: []
   logModeEvents: 0
   weaponTypeParam: WeaponType
+  scaleAnimatorSpeedWithMask: 1
+  baseAnimatorSpeed: 1
+  maskAnimatorSpeedMul: 2
   weaponHotbarUI: {fileID: 616404756}
   postFxController: {fileID: 0}
   useHitStop: 1
@@ -2541,7 +2546,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &861626490
 MonoBehaviour:
   m_ObjectHideFlags: 0
