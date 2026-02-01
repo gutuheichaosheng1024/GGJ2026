@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 [DisallowMultipleComponent]
 public class PlayerStatus : MonoBehaviour
@@ -27,6 +28,17 @@ public class PlayerStatus : MonoBehaviour
     [Tooltip("Sanity drain per second when mask is ON (positive).")]
     public float sanDrainMaskPerSecond = 3f;
     public MaskBuff maskBuff = new MaskBuff();
+    public AudioSource maskAudioSource;
+    public AudioClip maskToggleClip;
+
+    [Header("Potion")]
+    public KeyCode potionKey = KeyCode.Alpha1;
+    public bool usePotionOnKey = true;
+    public int potionCount = 2;
+    public float potionHeal = 5f;
+    public TMP_Text potionCountText;
+    public AudioSource potionAudioSource;
+    public AudioClip potionClip;
 
     [Header("Events")]
     public UnityAction<float> onHealthChange;
@@ -60,10 +72,24 @@ public class PlayerStatus : MonoBehaviour
     {
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         currentSan = Mathf.Clamp(currentSan, 0f, maxSan);
+        if (potionAudioSource == null)
+        {
+            potionAudioSource = GetComponent<AudioSource>();
+        }
+        if (maskAudioSource == null)
+        {
+            maskAudioSource = potionAudioSource;
+        }
+        UpdatePotionUI();
     }
 
     void Update()
     {
+        if (usePotionOnKey && Input.GetKeyDown(potionKey))
+        {
+            TryUsePotion();
+        }
+
         float dt = Time.deltaTime;
         if (isMaskOn)
         {
@@ -86,12 +112,14 @@ public class PlayerStatus : MonoBehaviour
     public void ToggleMask()
     {
         isMaskOn = !isMaskOn;
+        PlayMaskSfx();
         SyncPostFx();
     }
 
     public void SetMask(bool on)
     {
         isMaskOn = on;
+        PlayMaskSfx();
         SyncPostFx();
     }
 
@@ -127,6 +155,44 @@ public class PlayerStatus : MonoBehaviour
         CheckDeath();
     }
 
+    public bool TryUsePotion()
+    {
+        if (isDead)
+        {
+            return false;
+        }
+
+        if (potionCount <= 0)
+        {
+            return false;
+        }
+
+        if (currentHealth >= maxHealth)
+        {
+            return false;
+        }
+
+        potionCount -= 1;
+        AddHealth(potionHeal);
+        if (potionAudioSource != null && potionClip != null)
+        {
+            potionAudioSource.PlayOneShot(potionClip);
+        }
+        UpdatePotionUI();
+        return true;
+    }
+
+    public void AddPotions(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        potionCount += amount;
+        UpdatePotionUI();
+    }
+
     public void AddSan(float amount)
     {
         currentSan = Mathf.Clamp(currentSan + amount, 0f, maxSan);
@@ -142,6 +208,21 @@ public class PlayerStatus : MonoBehaviour
         }
     }
 
+    void UpdatePotionUI()
+    {
+        if (potionCountText != null)
+        {
+            potionCountText.text = potionCount.ToString();
+        }
+    }
+
+    void PlayMaskSfx()
+    {
+        if (maskAudioSource != null && maskToggleClip != null)
+        {
+            maskAudioSource.PlayOneShot(maskToggleClip);
+        }
+    }
 
 
 }
