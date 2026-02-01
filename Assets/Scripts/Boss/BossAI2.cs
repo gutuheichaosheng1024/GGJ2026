@@ -130,6 +130,11 @@ public class BossAI2 : MonoBehaviour
     public bool triggerDialogueOnDeath = true;
     public Talkable talkOnDeath;
 
+    [Header("BGM")]
+    public BgmStoryManager bgmManager;
+    public bool playBossBgmOnStart = true;
+    public bool playAfterBossBgmOnDeath = true;
+
     BossState state = BossState.Idle;
     Rigidbody2D rb;
     Collider2D col;
@@ -210,6 +215,14 @@ public class BossAI2 : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         SetupTelegraphs();
         SetPhased(startPhased);
+        if (bgmManager == null)
+        {
+            bgmManager = FindFirstObjectByType<BgmStoryManager>();
+        }
+        if (playBossBgmOnStart && bgmManager != null)
+        {
+            bgmManager.PlayBoss();
+        }
     }
 
     void Start()
@@ -1012,6 +1025,10 @@ public class BossAI2 : MonoBehaviour
         }
 
         onDeath?.Invoke();
+        if (playAfterBossBgmOnDeath && bgmManager != null)
+        {
+            bgmManager.PlayAfterBoss();
+        }
         TriggerDeathDialogue();
         Destroy(gameObject, deathDestroyDelay);
     }
