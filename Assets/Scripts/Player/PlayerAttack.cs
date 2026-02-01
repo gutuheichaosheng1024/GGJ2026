@@ -20,6 +20,7 @@ public class PlayerAttack : MonoBehaviour
         public float damage = 15f;
         public float cooldown = 0.5f;
         public int meshSegments = 24;
+        public float damageDelay = 0f;
 
         [Header("Preview")]
         public float previewDuration = 0.15f;
@@ -47,6 +48,9 @@ public class PlayerAttack : MonoBehaviour
     public UnityEvent onAttack;
     public bool logModeEvents = false;
     public string weaponTypeParam = "WeaponType";
+    public bool scaleAnimatorSpeedWithMask = false;
+    public float baseAnimatorSpeed = 1f;
+    public float maskAnimatorSpeedMul = 1.2f;
 
     [Header("UI (Optional Direct Link)")]
     public WeaponHotbarUI weaponHotbarUI;
@@ -117,6 +121,7 @@ public class PlayerAttack : MonoBehaviour
             postFxController.SetMask(status.isMaskOn);
         }
         SyncWeaponTypeParam();
+        SyncAnimatorSpeed();
     }
 
     void Update()
@@ -143,6 +148,8 @@ public class PlayerAttack : MonoBehaviour
         {
             HidePreview();
         }
+
+        SyncAnimatorSpeed();
     }
 
     public void SetAttackMode(AttackMode mode)
@@ -194,7 +201,8 @@ public class PlayerAttack : MonoBehaviour
         }
 
         lastAttackDir = attackDir;
-        ShowPreview(attackDir, cfg);
+        float delay = GetMeleeDelay(cfg);
+        ShowPreview(attackDir, cfg, delay);
 
         if (animator != null)
         {
@@ -214,20 +222,7 @@ public class PlayerAttack : MonoBehaviour
         onAttack?.Invoke();
         float damage = GetMeleeDamage(cfg);
         float radius = GetMeleeRadius(cfg);
-        bool hitAny = ApplyDamage(attackDir, cfg, damage, radius);
-
-        if (hitAny)
-        {
-            if (useHitStop && hitStop != null)
-            {
-                hitStop.Trigger(hitStopDuration, hitStopTimeScale);
-            }
-
-            if (useCameraShake && cameraShake != null)
-            {
-                cameraShake.Shake(shakeDuration, shakeStrength);
-            }
-        }
+        StartCoroutine(DoMeleeDamageAfterDelay(attackDir, cfg, damage, radius, delay));
     }
 
     bool ApplyDamage(Vector2 attackDir, AttackConfig cfg, float damage, float radius)
@@ -273,9 +268,9 @@ public class PlayerAttack : MonoBehaviour
         return hitAny;
     }
 
-    void ShowPreview(Vector2 direction, AttackConfig cfg)
+    void ShowPreview(Vector2 direction, AttackConfig cfg, float delay)
     {
-        previewUntilTime = Time.time + cfg.previewDuration;
+        previewUntilTime = Time.time + Mathf.Max(cfg.previewDuration, delay);
         if (meshRenderer != null)
         {
             meshRenderer.enabled = true;
@@ -489,6 +484,28 @@ public class PlayerAttack : MonoBehaviour
         return Mathf.Max(0.05f, (baseCd - add) * mul);
     }
 
+    System.Collections.IEnumerator DoMeleeDamageAfterDelay(Vector2 attackDir, AttackConfig cfg, float damage, float radius, float delay)
+    {
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+
+        bool hitAny = ApplyDamage(attackDir, cfg, damage, radius);
+        if (hitAny)
+        {
+            if (useHitStop && hitStop != null)
+            {
+                hitStop.Trigger(hitStopDuration, hitStopTimeScale);
+            }
+
+            if (useCameraShake && cameraShake != null)
+            {
+                cameraShake.Shake(shakeDuration, shakeStrength);
+            }
+        }
+    }
+
     void SyncWeaponTypeParam()
     {
         if (animator == null || string.IsNullOrEmpty(weaponTypeParam))
@@ -497,6 +514,32 @@ public class PlayerAttack : MonoBehaviour
         }
 
         animator.SetInteger(weaponTypeParam, (int)attackMode);
+    }
+
+    void SyncAnimatorSpeed()
+    {
+        if (!scaleAnimatorSpeedWithMask || animator == null || status == null)
+        {
+            return;
+        }
+
+        float target = status.isMaskOn ? baseAnimatorSpeed * maskAnimatorSpeedMul : baseAnimatorSpeed;
+        if (!Mathf.Approximately(animator.speed, target))
+        {
+            animator.speed = target;
+        }
+    }
+
+    float GetMeleeDelay(AttackConfig cfg)
+    {
+        float baseDelay = Mathf.Max(0f, cfg.damageDelay);
+        if (status == null || status.maskBuff == null || !status.isMaskOn)
+        {
+            return baseDelay;
+        }
+
+        float mul = status.maskBuff.GetCooldownMul(attackMode);
+        return Mathf.Max(0f, baseDelay * mul);
     }
 
 }

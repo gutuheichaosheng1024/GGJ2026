@@ -38,7 +38,7 @@ public class DialogueUI : MonoBehaviour
     public static DialogueUI _instance;
     public static DialogueUI Instance => _instance;
 
-    public Action<int> DialogEnd;
+    public Action End;
 
     private void Awake()
     {
@@ -145,7 +145,6 @@ public class DialogueUI : MonoBehaviour
                 textArea.text += "\n";
             }
         }
-        Debug.Log(NameArea.text + "   " + NameArea.color);
 
         talkCoroutine = null;
         // 协程执行完毕后，将引用置为null
@@ -206,7 +205,7 @@ public class DialogueUI : MonoBehaviour
     private void EndTalk()
     {
         Time.timeScale = 1.0f;
-        DialogEnd?.Invoke(_currentTalk._index);
+        End?.Invoke();
         _currentTalk._index++;
         _currentTalk = _otherTalk = null;
         GetComponent<Player>().StartMove();

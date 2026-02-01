@@ -55,6 +55,9 @@ public class MonsterAI : MonoBehaviour
     public string deathTrigger = "Die";
     public float deathDestroyDelay = 1.0f;
 
+    [Header("Facing")]
+    public bool flipByTarget = true;
+
     [Header("Events")]
     public UnityEvent onDeath;
 
@@ -64,6 +67,7 @@ public class MonsterAI : MonoBehaviour
     private bool isDead;
     private Vector2 desiredVelocity;
     private bool shouldMove;
+    private Vector3 baseScale;
 
     private SpriteRenderer[] spriteRenderers;
     private MaterialPropertyBlock block;
@@ -109,6 +113,7 @@ public class MonsterAI : MonoBehaviour
             hitAudioSource = GetComponent<AudioSource>();
         }
 
+        baseScale = transform.localScale;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
     }
 
@@ -129,6 +134,11 @@ public class MonsterAI : MonoBehaviour
         if (isDead || target == null)
         {
             return;
+        }
+
+        if (flipByTarget)
+        {
+            UpdateFacing();
         }
 
         float distance = Vector2.Distance(transform.position, target.position);
@@ -405,6 +415,20 @@ public class MonsterAI : MonoBehaviour
         onDeath?.Invoke();
 
         Destroy(gameObject, deathDestroyDelay);
+    }
+
+    void UpdateFacing()
+    {
+        float dx = target.position.x - transform.position.x;
+        if (Mathf.Abs(dx) < 0.0001f)
+        {
+            return;
+        }
+
+        Vector3 scale = baseScale;
+        float sign = dx < 0f ? -1f : 1f;
+        scale.x = Mathf.Abs(baseScale.x) * sign;
+        transform.localScale = scale;
     }
 
     void OnDrawGizmosSelected()
