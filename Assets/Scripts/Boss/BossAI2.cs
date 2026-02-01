@@ -1025,11 +1025,11 @@ public class BossAI2 : MonoBehaviour
         }
 
         onDeath?.Invoke();
-        TriggerDeathDialogue();
         if (playAfterBossBgmOnDeath && bgmManager != null)
         {
             bgmManager.PlayAfterBoss();
         }
+        TriggerDeathDialogue();
         Destroy(gameObject, deathDestroyDelay);
     }
 
