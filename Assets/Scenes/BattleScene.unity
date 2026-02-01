@@ -2742,6 +2742,7 @@ Transform:
   - {fileID: 1132353774}
   - {fileID: 569619738}
   - {fileID: 690089304}
+  - {fileID: 1261175139}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &931490020
@@ -3726,6 +3727,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1208576221}
   m_CullTransparentMesh: 1
+--- !u!1 &1261175138
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1261175139}
+  - component: {fileID: 1261175140}
+  m_Layer: 0
+  m_Name: dialogStore
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1261175139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261175138}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 931490019}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1261175140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261175138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5386d6acce061594c9c0bf5f07091ad8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+  - {fileID: 11400000, guid: 246922c1c8eadf94aa8a2df6c2293ba4, type: 2}
+  - {fileID: 11400000, guid: 497decc78ebeb844692913f7768a28af, type: 2}
+  - {fileID: 11400000, guid: 29d67d333b58adf46a6d45a4b3a6d395, type: 2}
+  - {fileID: 11400000, guid: 978c56773af56dc48aac1a664e854e84, type: 2}
+  _index: 0
+  speakerName: "\u54C8\u65AF\u5854"
+  speakerPortrait: {fileID: 0}
+  nameColor: {r: 1, g: 1, b: 0, a: 1}
+  voiceClip: {fileID: 0}
 --- !u!1 &1333403838
 GameObject:
   m_ObjectHideFlags: 0
@@ -4027,6 +4082,10 @@ PrefabInstance:
         type: 3}
       insertIndex: 2
       addedObject: {fileID: 2025215751}
+    - targetCorrespondingSourceObject: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2025215757}
   m_SourcePrefab: {fileID: 100100000, guid: 741fc4ca536a8b54087ce3f528588b99, type: 3}
 --- !u!1 &1382832488
 GameObject:
@@ -5412,6 +5471,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2025215757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025215745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5386d6acce061594c9c0bf5f07091ad8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data: []
+  _index: 0
+  speakerName: "\u9ED1\u6CD5\u8001"
+  speakerPortrait: {fileID: 0}
+  nameColor: {r: 0, g: 0, b: 0, a: 1}
+  voiceClip: {fileID: 0}
 --- !u!1 &2057339390
 GameObject:
   m_ObjectHideFlags: 0

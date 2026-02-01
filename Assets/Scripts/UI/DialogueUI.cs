@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -18,6 +19,7 @@ public class DialogueUI : MonoBehaviour
     private static TextMeshProUGUI textArea;
 
     private static Talkable _currentTalk = null;
+    private static Talkable _otherTalk = null;
 
     private static Coroutine talkCoroutine;
     private enum DialogState
@@ -35,7 +37,7 @@ public class DialogueUI : MonoBehaviour
     public static DialogueUI _instance;
     public static DialogueUI Instance => _instance;
 
-
+    public Action<bool> DialogEnd;
 
     private void Awake()
     {
@@ -52,17 +54,24 @@ public class DialogueUI : MonoBehaviour
         currentTalkCanvas.SetActive(false);
     }
 
-    private void StartTalk(Talkable target)
+    private void StartTalk(Talkable target,Talkable _other = null)
     {
         _currentTalk = target;
+        _otherTalk = _other;
         if (_currentTalk._index >= _currentTalk._data.Length && _state != DialogState.Free) return;
         _state = DialogState.Talking;
         //初始化聊天准备
         currentTalkCanvas.SetActive(true);
         otherSign.GetComponent<Image>().sprite = _currentTalk.speakerPortrait;
-        playerSign.GetComponent<Image>().sprite = GetComponent<Talkable>().speakerPortrait;
+        if (_otherTalk)
+        {
+            playerSign.GetComponent<Image>().sprite = _otherTalk.speakerPortrait;
+        }
+        else
+        {
+            playerSign.GetComponent<Image>().sprite = GetComponent<Talkable>().speakerPortrait;
+        }
         GetComponent<Player>().StopMove();
-
 
         _currentLine = 0;
         fullText = _currentTalk._data[_currentTalk._index].dialogueLines[_currentLine].content;
@@ -92,8 +101,17 @@ public class DialogueUI : MonoBehaviour
             playerSign.SetActive(true);
             otherSign.SetActive(false);
             TextMeshProUGUI textMeshProUGUI = textArea.transform.GetComponentInChildren<TextMeshProUGUI>();
-            textMeshProUGUI.text = PlayerStatus.Pname;
-            textMeshProUGUI.color = GetComponent<Talkable>().nameColor;
+            if (_otherTalk)
+            {
+                textMeshProUGUI.text = _otherTalk.speakerName;
+                textMeshProUGUI.color = _otherTalk.nameColor;
+            }
+            else
+            {
+                textMeshProUGUI.text = PlayerStatus.Pname;
+                textMeshProUGUI.color = GetComponent<Talkable>().nameColor;
+            }
+
         }
         else
         {
@@ -166,6 +184,9 @@ public class DialogueUI : MonoBehaviour
     private void EndTalk()
     {
         _currentTalk._index++;
+        if (_currentTalk._index >= _currentTalk._data.Length) DialogEnd?.Invoke(true);
+        else DialogEnd?.Invoke(false);
+        _currentTalk = _otherTalk = null;
         GetComponent<Player>().StartMove();
         currentTalkCanvas.SetActive(false);
         _state = DialogState.Free;
