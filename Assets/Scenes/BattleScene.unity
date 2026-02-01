@@ -712,8 +712,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 10
   currentHealth: 10
-  maxSan: 100
-  currentSan: 100
+  maxSan: 60
+  currentSan: 60
   moveSpeed: 1
   dashTime: 0.5
   dashSpeed: 8
