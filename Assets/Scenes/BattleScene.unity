@@ -726,7 +726,7 @@ MonoBehaviour:
   maxSan: 100
   currentSan: 100
   moveSpeed: 1
-  dashTime: 2
+  dashTime: 0.5
   dashSpeed: 8
   isMaskOn: 0
   sanRegenPerSecond: 0.5
@@ -744,12 +744,6 @@ MonoBehaviour:
     circleRadiusMul: 2
     circleCooldownAdd: 0
     circleCooldownMul: 0.5
-    rangedDamageAdd: 0
-    rangedDamageMul: 1
-    rangedRangeAdd: 0
-    rangedRangeMul: 1
-    rangedCooldownAdd: 0
-    rangedCooldownMul: 1
     moveSpeedAdd: 0
     moveSpeedMul: 1
   maskAudioSource: {fileID: 0}
@@ -780,7 +774,7 @@ MonoBehaviour:
   cycleKey: 51
   maskToggleKey: 50
   coneConfig:
-    radius: 0.5
+    radius: 0.6
     angle: 90
     damage: 1
     cooldown: 0.5
@@ -792,8 +786,8 @@ MonoBehaviour:
     attackEffectPrefab: {fileID: 0}
     effectLifetime: 1
   circleConfig:
-    radius: 0.5
-    angle: 90
+    radius: 1
+    angle: 180
     damage: 2
     cooldown: 1
     meshSegments: 24
@@ -803,17 +797,6 @@ MonoBehaviour:
     attackTrigger: Attack
     attackEffectPrefab: {fileID: 0}
     effectLifetime: 1
-  rangedConfig:
-    projectilePrefab: {fileID: 4878162552114884885, guid: 55bcc4f4910ea9540a9fcc4abc99faa4,
-      type: 3}
-    projectileSpeed: 8
-    projectileRange: 6
-    projectileDamage: 50
-    hitMode: 0
-    attackTrigger: Attack
-    attackEffectPrefab: {fileID: 0}
-    effectLifetime: 1
-    cooldown: 0.1
   targetLayers:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -822,6 +805,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   logModeEvents: 0
+  weaponTypeParam: WeaponType
   weaponHotbarUI: {fileID: 616404756}
   postFxController: {fileID: 0}
   useHitStop: 1
@@ -1609,7 +1593,6 @@ MonoBehaviour:
   weaponIcons:
   - {fileID: 21300000, guid: c116f4ad7c5694b45984541b64bb80f2, type: 3}
   - {fileID: 21300000, guid: b5abbd75320149d408d467a0038f7017, type: 3}
-  - {fileID: 21300000, guid: 4b2f274eac2438c438bbd4f95eeaa32c, type: 3}
   startIndex: 0
   switchKey: 284
   listenInput: 0
@@ -2375,6 +2358,11 @@ PrefabInstance:
     - target: {fileID: 6715484387680914727, guid: 06b640e7b4488f240945b0c7c6dc7555,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8355618892854386416, guid: 06b640e7b4488f240945b0c7c6dc7555,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8692849256217160067, guid: 06b640e7b4488f240945b0c7c6dc7555,
@@ -4009,7 +3997,7 @@ PrefabInstance:
     - target: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1036677577332984383, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}

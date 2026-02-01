@@ -7,8 +7,7 @@ public class PlayerAttack : MonoBehaviour
     public enum AttackMode
     {
         Cone,
-        Circle,
-        Ranged
+        Circle
     }
 
     [System.Serializable]
@@ -33,25 +32,6 @@ public class PlayerAttack : MonoBehaviour
         public float effectLifetime = 1.0f;
     }
 
-    [System.Serializable]
-    public class RangedConfig
-    {
-        [Header("Ranged")]
-        public GameObject projectilePrefab;
-        public float projectileSpeed = 8f;
-        public float projectileRange = 6f;
-        public float projectileDamage = 10f;
-        public Bullet.HitMode hitMode = Bullet.HitMode.HitFirst;
-
-        [Header("Animation / FX")]
-        public string attackTrigger = "Attack";
-        public GameObject attackEffectPrefab;
-        public float effectLifetime = 1.0f;
-
-        [Header("Cooldown")]
-        public float cooldown = 0.6f;
-    }
-
     [Header("Mode")]
     public AttackMode attackMode = AttackMode.Cone;
     public KeyCode cycleKey = KeyCode.Alpha3;
@@ -60,13 +40,13 @@ public class PlayerAttack : MonoBehaviour
     [Header("Configs")]
     public AttackConfig coneConfig = new AttackConfig();
     public AttackConfig circleConfig = new AttackConfig();
-    public RangedConfig rangedConfig = new RangedConfig();
 
     [Header("Common")]
     public LayerMask targetLayers = ~0;
     public Animator animator;
     public UnityEvent onAttack;
     public bool logModeEvents = false;
+    public string weaponTypeParam = "WeaponType";
 
     [Header("UI (Optional Direct Link)")]
     public WeaponHotbarUI weaponHotbarUI;
@@ -100,7 +80,6 @@ public class PlayerAttack : MonoBehaviour
     private Vector2 lastAttackDir;
     private float lastConeAttackTime;
     private float lastCircleAttackTime;
-    private float lastRangedAttackTime;
     private PlayerStatus status;
 
     void Awake()
@@ -137,6 +116,7 @@ public class PlayerAttack : MonoBehaviour
         {
             postFxController.SetMask(status.isMaskOn);
         }
+        SyncWeaponTypeParam();
     }
 
     void Update()
@@ -169,10 +149,7 @@ public class PlayerAttack : MonoBehaviour
     {
         attackMode = mode;
         SetupPreviewRenderer();
-        if (attackMode == AttackMode.Ranged)
-        {
-            HidePreview();
-        }
+        SyncWeaponTypeParam();
         if (logModeEvents)
         {
             Debug.Log($"[PlayerAttack] Mode -> {attackMode} ({(int)attackMode})");
@@ -185,20 +162,13 @@ public class PlayerAttack : MonoBehaviour
 
     public void CycleAttackMode()
     {
-        int next = ((int)attackMode + 1) % 3;
+        int next = ((int)attackMode + 1) % 2;
         SetAttackMode((AttackMode)next);
     }
 
     void TryAttack()
     {
-        if (attackMode == AttackMode.Ranged)
-        {
-            TryRangedAttack();
-        }
-        else
-        {
-            TryMeleeAttack();
-        }
+        TryMeleeAttack();
     }
 
     void TryMeleeAttack()
@@ -226,9 +196,13 @@ public class PlayerAttack : MonoBehaviour
         lastAttackDir = attackDir;
         ShowPreview(attackDir, cfg);
 
-        if (animator != null && !string.IsNullOrEmpty(cfg.attackTrigger))
+        if (animator != null)
         {
-            animator.SetTrigger(cfg.attackTrigger);
+            SyncWeaponTypeParam();
+            if (!string.IsNullOrEmpty(cfg.attackTrigger))
+            {
+                animator.SetTrigger(cfg.attackTrigger);
+            }
         }
 
         if (cfg.attackEffectPrefab != null)
@@ -256,66 +230,6 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    void TryRangedAttack()
-    {
-        if (rangedConfig == null)
-        {
-            return;
-        }
-
-        float cooldown = GetRangedCooldown(rangedConfig);
-        if (Time.time - lastRangedAttackTime < cooldown)
-        {
-            return;
-        }
-
-        if (rangedConfig.projectilePrefab == null)
-        {
-            return;
-        }
-
-        lastRangedAttackTime = Time.time;
-
-        Vector2 attackDir = GetMouseDirection();
-        if (attackDir == Vector2.zero)
-        {
-            attackDir = Vector2.up;
-        }
-
-        if (animator != null && !string.IsNullOrEmpty(rangedConfig.attackTrigger))
-        {
-            animator.SetTrigger(rangedConfig.attackTrigger);
-        }
-
-        if (rangedConfig.attackEffectPrefab != null)
-        {
-            GameObject fx = Instantiate(rangedConfig.attackEffectPrefab, transform.position, Quaternion.identity);
-            Destroy(fx, Mathf.Max(0.01f, rangedConfig.effectLifetime));
-        }
-
-        onAttack?.Invoke();
-
-        float damage = GetRangedDamage(rangedConfig);
-        float range = GetRangedRange(rangedConfig);
-        SpawnProjectile(attackDir, damage, range);
-    }
-
-    void SpawnProjectile(Vector2 direction, float damage, float range)
-    {
-        if (rangedConfig.projectilePrefab == null)
-        {
-            return;
-        }
-
-        Quaternion rot = Quaternion.LookRotation(Vector3.forward, direction);
-        GameObject proj = Instantiate(rangedConfig.projectilePrefab, transform.position, rot);
-        Bullet bullet = proj.GetComponent<Bullet>();
-        if (bullet != null)
-        {
-            bullet.Initialize(direction, rangedConfig.projectileSpeed, range, damage, rangedConfig.hitMode, targetLayers);
-        }
-    }
-
     bool ApplyDamage(Vector2 attackDir, AttackConfig cfg, float damage, float radius)
     {
         bool hitAny = false;
@@ -334,13 +248,10 @@ public class PlayerAttack : MonoBehaviour
                 continue;
             }
 
-            if (attackMode == AttackMode.Cone)
+            float a = Vector2.Angle(attackDir, toTarget.normalized);
+            if (a > halfAngle)
             {
-                float a = Vector2.Angle(attackDir, toTarget.normalized);
-                if (a > halfAngle)
-                {
-                    continue;
-                }
+                continue;
             }
 
             MonsterAI monster = hits[i].GetComponentInParent<MonsterAI>();
@@ -427,14 +338,7 @@ public class PlayerAttack : MonoBehaviour
 
         mesh.Clear();
 
-        if (attackMode == AttackMode.Circle)
-        {
-            BuildCircleMesh(mesh, cfg);
-        }
-        else
-        {
-            BuildConeMesh(mesh, direction, cfg);
-        }
+        BuildConeMesh(mesh, direction, cfg);
     }
 
     Vector2 GetMouseDirection()
@@ -468,38 +372,6 @@ public class PlayerAttack : MonoBehaviour
 
         Gizmos.color = Color.gray;
         Gizmos.DrawWireSphere(transform.position, cfg.radius);
-    }
-
-    void BuildCircleMesh(Mesh mesh, AttackConfig cfg)
-    {
-        int segments = Mathf.Max(6, cfg.meshSegments);
-        int vertexCount = segments + 1;
-        Vector3[] vertices = new Vector3[vertexCount];
-        int[] triangles = new int[segments * 3];
-
-        vertices[0] = Vector3.zero;
-        for (int i = 0; i < segments; i++)
-        {
-            float t = i / (float)segments;
-            float ang = t * Mathf.PI * 2f;
-            float x = Mathf.Cos(ang) * cfg.radius;
-            float y = Mathf.Sin(ang) * cfg.radius;
-            vertices[i + 1] = new Vector3(x, y, 0f);
-        }
-
-        int tri = 0;
-        for (int i = 0; i < segments; i++)
-        {
-            int a = i + 1;
-            int b = i == segments - 1 ? 1 : i + 2;
-            triangles[tri++] = 0;
-            triangles[tri++] = a;
-            triangles[tri++] = b;
-        }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.RecalculateBounds();
     }
 
     void BuildConeMesh(Mesh mesh, Vector2 direction, AttackConfig cfg)
@@ -617,30 +489,14 @@ public class PlayerAttack : MonoBehaviour
         return Mathf.Max(0.05f, (baseCd - add) * mul);
     }
 
-    float GetRangedDamage(RangedConfig cfg)
+    void SyncWeaponTypeParam()
     {
-        float baseDamage = cfg.projectileDamage;
-        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseDamage;
-        float add = status.maskBuff.GetDamageAdd(AttackMode.Ranged);
-        float mul = status.maskBuff.GetDamageMul(AttackMode.Ranged);
-        return (baseDamage + add) * mul;
+        if (animator == null || string.IsNullOrEmpty(weaponTypeParam))
+        {
+            return;
+        }
+
+        animator.SetInteger(weaponTypeParam, (int)attackMode);
     }
 
-    float GetRangedRange(RangedConfig cfg)
-    {
-        float baseRange = cfg.projectileRange;
-        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseRange;
-        float add = status.maskBuff.GetRangeAdd(AttackMode.Ranged);
-        float mul = status.maskBuff.GetRangeMul(AttackMode.Ranged);
-        return Mathf.Max(0.01f, (baseRange + add) * mul);
-    }
-
-    float GetRangedCooldown(RangedConfig cfg)
-    {
-        float baseCd = cfg.cooldown;
-        if (status == null || status.maskBuff == null || !status.isMaskOn) return baseCd;
-        float add = status.maskBuff.GetCooldownAdd(AttackMode.Ranged);
-        float mul = status.maskBuff.GetCooldownMul(AttackMode.Ranged);
-        return Mathf.Max(0.05f, (baseCd - add) * mul);
-    }
 }
