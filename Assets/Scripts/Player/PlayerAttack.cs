@@ -154,7 +154,7 @@ public class PlayerAttack : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonDown(mouseButton))
+        if (Input.GetMouseButton(mouseButton))
         {
             TryAttack();
         }
