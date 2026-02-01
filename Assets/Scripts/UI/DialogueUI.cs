@@ -33,6 +33,7 @@ public class DialogueUI : MonoBehaviour
 
 
     public static DialogueUI _instance;
+    public static DialogueUI Instance => _instance;
 
 
 
@@ -67,6 +68,21 @@ public class DialogueUI : MonoBehaviour
         fullText = _currentTalk._data[_currentTalk._index].dialogueLines[_currentLine].content;
 
         talkCoroutine = StartCoroutine(TypeText());
+    }
+
+    public void BeginTalk(Talkable target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        if (_state != DialogState.Free && _state != DialogState.WaitForEnd)
+        {
+            return;
+        }
+
+        StartTalk(target);
     }
 
     IEnumerator TypeText()

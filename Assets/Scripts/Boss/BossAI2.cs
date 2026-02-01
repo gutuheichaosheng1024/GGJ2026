@@ -126,6 +126,10 @@ public class BossAI2 : MonoBehaviour
     public float phasedAlpha = 0.35f;
     public float maxPhasedDuration = 5f;
 
+    [Header("Dialogue")]
+    public bool triggerDialogueOnDeath = true;
+    public Talkable talkOnDeath;
+
     BossState state = BossState.Idle;
     Rigidbody2D rb;
     Collider2D col;
@@ -146,6 +150,7 @@ public class BossAI2 : MonoBehaviour
     bool isCharging;
     Vector2 chargeDir;
     float chargeRemaining;
+    bool deathDialogueTriggered;
 
     SpriteRenderer[] spriteRenderers;
     MaterialPropertyBlock block;
@@ -1007,7 +1012,24 @@ public class BossAI2 : MonoBehaviour
         }
 
         onDeath?.Invoke();
+        TriggerDeathDialogue();
         Destroy(gameObject, deathDestroyDelay);
+    }
+
+    void TriggerDeathDialogue()
+    {
+        if (!triggerDialogueOnDeath || deathDialogueTriggered)
+        {
+            return;
+        }
+
+        if (talkOnDeath == null || DialogueUI.Instance == null)
+        {
+            return;
+        }
+
+        deathDialogueTriggered = true;
+        DialogueUI.Instance.BeginTalk(talkOnDeath);
     }
 
     void SetMoving(bool isMoving)
