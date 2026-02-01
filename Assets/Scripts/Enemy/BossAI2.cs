@@ -60,6 +60,9 @@ public class BossAI2 : MonoBehaviour
     public string deathTrigger = "Die";
     public float deathDestroyDelay = 1.0f;
 
+    [Header("Facing")]
+    public bool flipByTarget = true;
+
     [Header("Events")]
     public UnityEvent onDeath;
 
@@ -156,6 +159,7 @@ public class BossAI2 : MonoBehaviour
     Vector2 chargeDir;
     float chargeRemaining;
     bool deathDialogueTriggered;
+    Vector3 baseScale;
 
     SpriteRenderer[] spriteRenderers;
     MaterialPropertyBlock block;
@@ -212,6 +216,7 @@ public class BossAI2 : MonoBehaviour
             stompAudioSource = hitAudioSource;
         }
 
+        baseScale = transform.localScale;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         SetupTelegraphs();
         SetPhased(startPhased);
@@ -245,6 +250,11 @@ public class BossAI2 : MonoBehaviour
         if (isDead || target == null)
         {
             return;
+        }
+
+        if (flipByTarget)
+        {
+            UpdateFacing();
         }
 
         if (!isSkillRunning)
@@ -1091,5 +1101,37 @@ public class BossAI2 : MonoBehaviour
         }
 
         ps.AddHealth(-normalAttackDamage);
+    }
+
+    void UpdateFacing()
+    {
+        float dx = target.position.x - transform.position.x;
+        if (Mathf.Abs(dx) < 0.0001f)
+        {
+            return;
+        }
+
+        Vector3 scale = baseScale;
+        float sign = dx < 0f ? -1f : 1f;
+        scale.x = Mathf.Abs(baseScale.x) * sign;
+        transform.localScale = scale;
+        SyncTelegraphFlip();
+    }
+
+    void SyncTelegraphFlip()
+    {
+        float sign = transform.localScale.x < 0f ? -1f : 1f;
+        if (coneTelegraph != null)
+        {
+            Vector3 s = coneTelegraph.transform.localScale;
+            s.x = Mathf.Abs(s.x) * sign;
+            coneTelegraph.transform.localScale = s;
+        }
+        if (rectTelegraph != null)
+        {
+            Vector3 s = rectTelegraph.transform.localScale;
+            s.x = Mathf.Abs(s.x) * sign;
+            rectTelegraph.transform.localScale = s;
+        }
     }
 }
