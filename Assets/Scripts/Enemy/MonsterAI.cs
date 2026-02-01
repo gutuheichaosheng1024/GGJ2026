@@ -21,6 +21,9 @@ public class MonsterAI : MonoBehaviour
     public float attackRange = 1.2f;
     public float attackDamage = 10f;
     public float attackCooldown = 1.0f;
+    public GameObject attackVfxPrefab;
+    public Vector3 attackVfxOffset;
+    public float attackVfxLifetime = 1.0f;
 
     [Header("Health")]
     public float maxHealth = 50f;
@@ -243,6 +246,8 @@ public class MonsterAI : MonoBehaviour
             animator.SetTrigger(attackTrigger);
         }
 
+        SpawnAttackVfx();
+
         PlayerStatus status = target != null ? target.GetComponentInParent<PlayerStatus>() : null;
         if (status == null && target != null)
         {
@@ -253,6 +258,32 @@ public class MonsterAI : MonoBehaviour
             return;
         }
         status.AddHealth(-attackDamage);
+    }
+
+    void SpawnAttackVfx()
+    {
+        if (attackVfxPrefab == null)
+        {
+            return;
+        }
+
+        Vector3 offset = attackVfxOffset;
+        if (target != null)
+        {
+            Vector3 dir = (target.position - transform.position);
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                dir.Normalize();
+                offset = new Vector3(dir.x * Mathf.Abs(attackVfxOffset.x), dir.y * Mathf.Abs(attackVfxOffset.y), attackVfxOffset.z);
+            }
+        }
+
+        Vector3 pos = transform.position + offset;
+        GameObject vfx = Instantiate(attackVfxPrefab, pos, Quaternion.identity);
+        if (attackVfxLifetime > 0f)
+        {
+            Destroy(vfx, attackVfxLifetime);
+        }
     }
 
     void SetMoving(bool isMoving)
