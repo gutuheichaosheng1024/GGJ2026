@@ -22,7 +22,9 @@ public class BattleUI : MonoBehaviour
     [Header("Kill Count")]
     public int kills;
     public TMP_Text killText;
-
+    List<int> Killingtrigger;
+    [SerializeField] private Talkable talkable_main;
+    [SerializeField] private Talkable talkable_other;
 
     void Awake()
     {
@@ -61,7 +63,6 @@ public class BattleUI : MonoBehaviour
     {
         kills++;
         UpdateUI();
-        Debug.Log("CALL");
     }
 
     void UpdateUI()

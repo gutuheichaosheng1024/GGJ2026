@@ -2112,6 +2112,8 @@ MonoBehaviour:
   back: {fileID: 340527103}
   kills: 0
   killText: {fileID: 1351747158}
+  talkable_main: {fileID: 1261175140}
+  talkable_other: {fileID: 2025215757}
 --- !u!1 &666526732
 GameObject:
   m_ObjectHideFlags: 0
