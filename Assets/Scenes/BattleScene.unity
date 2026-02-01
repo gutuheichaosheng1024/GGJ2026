@@ -2302,8 +2302,8 @@ MonoBehaviour:
   playerStatus: {fileID: 569619739}
   spawnParent: {fileID: 931490019}
   BattleUI: {fileID: 660550272}
-  minSpawnRadius: 5
-  maxSpawnRadius: 12
+  minSpawnRadius: 6
+  maxSpawnRadius: 8
   blockedLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2314,6 +2314,17 @@ MonoBehaviour:
   minCount: 1
   maxCount: 4
   spawnCountMultiplier: 1
+  sanSteps:
+  - 60
+  - 40
+  - 20
+  - 0
+  stepIntervals:
+  - 1
+  - 1
+  - 0.5
+  - 0.5
+  stepCounts: 02000000040000000400000008000000
   maxAlive: 50
 --- !u!4 &861626491
 Transform:
@@ -3665,7 +3676,7 @@ PrefabInstance:
     - target: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1036677577332984383, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}

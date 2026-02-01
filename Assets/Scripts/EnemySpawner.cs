@@ -33,6 +33,14 @@ public class EnemySpawner : MonoBehaviour
     public int maxCount = 4;
     public float spawnCountMultiplier = 1f;
 
+    [Header("SAN Step Table")]
+    [Tooltip("Sanity thresholds (percent). 60/40/20/0 => 4 steps.")]
+    public float[] sanSteps = new float[] { 60f, 40f, 20f, 0f };
+    [Tooltip("Spawn interval per step. 1,1,0.5,0.5")]
+    public float[] stepIntervals = new float[] { 1f, 1f, 0.5f, 0.5f };
+    [Tooltip("Spawn count per step. 2,4,4,8")]
+    public int[] stepCounts = new int[] { 2, 4, 4, 8 };
+
     [Header("Limits")]
     public int maxAlive = 12;
 
@@ -148,19 +156,54 @@ public class EnemySpawner : MonoBehaviour
 
     int GetSpawnCount()
     {
+        if (stepCounts != null && stepCounts.Length > 0)
+        {
+            int idx = GetSanStepIndex();
+            int count = stepCounts[Mathf.Clamp(idx, 0, stepCounts.Length - 1)];
+            count = Mathf.RoundToInt(count * Mathf.Max(0.1f, spawnCountMultiplier));
+            return Mathf.Max(1, count);
+        }
+
         float san01 = GetSan01();
         float raw = Mathf.Lerp(maxCount, minCount, san01);
         raw *= Mathf.Max(0.1f, spawnCountMultiplier);
-        int count = Mathf.RoundToInt(raw);
-        return Mathf.Clamp(count, minCount, maxCount);
+        int fallback = Mathf.RoundToInt(raw);
+        return Mathf.Clamp(fallback, minCount, maxCount);
     }
 
     float GetSpawnInterval()
     {
+        if (stepIntervals != null && stepIntervals.Length > 0)
+        {
+            int idx = GetSanStepIndex();
+            float interval = stepIntervals[Mathf.Clamp(idx, 0, stepIntervals.Length - 1)];
+            interval *= Mathf.Max(0.1f, spawnRateMultiplier);
+            return Mathf.Max(0.05f, interval);
+        }
+
         float san01 = GetSan01();
-        float interval = Mathf.Lerp(minInterval, maxInterval, san01);
-        interval *= Mathf.Max(0.1f, spawnRateMultiplier);
-        return Mathf.Max(0.05f, interval);
+        float fallback = Mathf.Lerp(minInterval, maxInterval, san01);
+        fallback *= Mathf.Max(0.1f, spawnRateMultiplier);
+        return Mathf.Max(0.05f, fallback);
+    }
+
+    int GetSanStepIndex()
+    {
+        float sanPercent = 100f * GetSan01();
+        if (sanSteps == null || sanSteps.Length == 0)
+        {
+            return 0;
+        }
+
+        for (int i = 0; i < sanSteps.Length; i++)
+        {
+            if (sanPercent >= sanSteps[i])
+            {
+                return i;
+            }
+        }
+
+        return sanSteps.Length - 1;
     }
 
     float GetSan01()

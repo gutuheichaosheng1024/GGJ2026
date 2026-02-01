@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (dashTimer > 0 || !allowMove) return;
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetMouseButtonDown(1))
         {
             Vector2 dashDir = Vector2.zero;
 
@@ -71,7 +71,14 @@ public class Player : MonoBehaviour
         }
         animator.SetFloat("InputX", facingX);
         animator.SetFloat("InputY", inputY);
-        Camera.main.transform.position = transform.position + offset;
+    }
+
+    void LateUpdate()
+    {
+        if (Camera.main != null)
+        {
+            Camera.main.transform.position = transform.position + offset;
+        }
     }
 
     private void FixedUpdate()
