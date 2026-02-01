@@ -1099,6 +1099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3a4ae4854013b49a7e0dbeac20fed9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowMove: 1
 --- !u!95 &569619734
 Animator:
   serializedVersion: 5
@@ -1271,17 +1272,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e50860275cc9dee46a7cbd6be2e57f15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 0
   maxHealth: 100
   currentHealth: 100
   maxSan: 100
   currentSan: 100
-  sanDrainPerSecond: 1
-  speed: 2
+  moveSpeed: 1
   dashTime: 0.5
   dashSpeed: 20
-  healthSlider: {fileID: 1784447851}
-  sanSlider: {fileID: 69016187}
+  isMaskOn: 0
+  sanRegenPerSecond: 0.5
+  sanDrainMaskPerSecond: 3
+  maskBuff:
+    coneDamageAdd: 0
+    coneDamageMul: 1.1
+    coneRadiusAdd: 0
+    coneRadiusMul: 1
+    coneCooldownAdd: 0
+    coneCooldownMul: 0.9
+    circleDamageAdd: 0
+    circleDamageMul: 1
+    circleRadiusAdd: 0
+    circleRadiusMul: 1
+    circleCooldownAdd: 0
+    circleCooldownMul: 1
+    rangedDamageAdd: 0
+    rangedDamageMul: 1
+    rangedRangeAdd: 0
+    rangedRangeMul: 1
+    rangedCooldownAdd: 0
+    rangedCooldownMul: 1
+    moveSpeedAdd: 0
+    moveSpeedMul: 1
   onDeath:
     m_PersistentCalls:
       m_Calls:
@@ -1310,9 +1331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackMode: 1
-  coneKey: 49
-  circleKey: 50
-  rangedKey: 51
+  cycleKey: 51
+  maskToggleKey: 50
   coneConfig:
     radius: 1
     angle: 90
@@ -1355,6 +1375,9 @@ MonoBehaviour:
   onAttack:
     m_PersistentCalls:
       m_Calls: []
+  logModeEvents: 0
+  weaponHotbarUI: {fileID: 0}
+  postFxController: {fileID: 0}
   useHitStop: 0
   hitStopDuration: 0.02
   hitStopTimeScale: 0
@@ -1818,10 +1841,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 22930631506241402, guid: 667623b4f9d1667449306c4b5f3573b2,
     type: 3}
+  enemyPrefabs: []
+  enemyWeights: []
   player: {fileID: 569619738}
   playerStatus: {fileID: 569619739}
   spawnParent: {fileID: 931490019}
-  killCounter: {fileID: 0}
+  BattleUI: {fileID: 0}
   minSpawnRadius: 5
   maxSpawnRadius: 12
   blockedLayers:
@@ -1834,6 +1859,17 @@ MonoBehaviour:
   minCount: 1
   maxCount: 4
   spawnCountMultiplier: 1
+  sanSteps:
+  - 60
+  - 40
+  - 20
+  - 0
+  stepIntervals:
+  - 1
+  - 1
+  - 0.5
+  - 0.5
+  stepCounts: 02000000040000000400000008000000
   maxAlive: 50
 --- !u!4 &861626491
 Transform:

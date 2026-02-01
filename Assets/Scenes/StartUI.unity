@@ -2358,7 +2358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e24e9b4c746920f42ac2b2964450ef46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NextScene: TalkingScene
+  NextScene: BattleScene
   startGame: {fileID: 932378954}
   exitGame: {fileID: 1791512855}
   nameField: {fileID: 368380613}
