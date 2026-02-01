@@ -9,7 +9,8 @@ public class Player : MonoBehaviour
 {
     public bool allowMove = true;
     new private Rigidbody2D rigidbody;
-    private Animator animator;
+    public Animator animator;
+    public Transform visualRoot;
     private float inputX, inputY;
     private float facingX = 1f;
     private Vector3 offset;
@@ -19,9 +20,16 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        offset = Camera.main.transform.position - transform.position;
+        offset = Camera.main.transform.position - transform.position; 
         rigidbody = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
+        if (visualRoot == null)
+        {
+            visualRoot = transform;
+        }
     }
 
     // Update is called once per frame
@@ -59,18 +67,28 @@ public class Player : MonoBehaviour
         {
             facingX = 1f;
         }
+        if (visualRoot != null)
+        {
+            Vector3 scale = visualRoot.localScale;
+            float sign = facingX < 0f ? -1f : 1f;
+            scale.x = Mathf.Abs(scale.x) * sign;
+            visualRoot.localScale = scale;
+        }
         Vector2 input = (inputX * transform.right + inputY * transform.up).normalized;
         rigidbody.velocity = input * PlayerStatus.Instance.GetMoveSpeed();
-        if (input != Vector2.zero)
+        if (animator != null)
         {
-            animator.SetBool("IsMoving", true);
+            if (input != Vector2.zero)
+            {
+                animator.SetBool("IsMoving", true);
+            }
+            else
+            {
+                animator.SetBool("IsMoving", false);
+            }
+            animator.SetFloat("InputX", facingX);
+            animator.SetFloat("InputY", inputY);
         }
-        else
-        {
-            animator.SetBool("IsMoving", false);
-        }
-        animator.SetFloat("InputX", facingX);
-        animator.SetFloat("InputY", inputY);
     }
 
     void LateUpdate()

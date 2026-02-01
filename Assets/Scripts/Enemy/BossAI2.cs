@@ -1033,9 +1033,24 @@ public class BossAI2 : MonoBehaviour
             return;
         }
 
-
         deathDialogueTriggered = true;
-        DialogueUI.Instance.StartTalk(talkOnDeath_Main,talkOnDeath_other);
+        if (DialogueUI.Instance == null)
+        {
+            Debug.LogWarning("[BossAI2] DialogueUI instance missing; skip death dialogue.");
+            return;
+        }
+        if (talkOnDeath_Main == null)
+        {
+            Debug.LogWarning("[BossAI2] talkOnDeath_Main is not assigned.");
+            return;
+        }
+        if (talkOnDeath_Main._data == null || talkOnDeath_Main._data.Length == 0)
+        {
+            Debug.LogWarning("[BossAI2] talkOnDeath_Main has no dialogue data.");
+            return;
+        }
+        talkOnDeath_Main._index = Mathf.Max(0, talkOnDeath_Main._data.Length - 1);
+        DialogueUI.Instance.StartTalk(talkOnDeath_Main, talkOnDeath_other);
     }
 
     void SetMoving(bool isMoving)

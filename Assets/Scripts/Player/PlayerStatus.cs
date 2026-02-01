@@ -246,14 +246,6 @@ public class MaskBuff
     public float circleCooldownAdd = 0f;
     public float circleCooldownMul = 1.0f;
 
-    [Header("Ranged")]
-    public float rangedDamageAdd = 0f;
-    public float rangedDamageMul = 1.0f;
-    public float rangedRangeAdd = 0f;
-    public float rangedRangeMul = 1.0f;
-    public float rangedCooldownAdd = 0f;
-    public float rangedCooldownMul = 1.0f;
-
     [Header("Movement")]
     public float moveSpeedAdd = 0f;
     public float moveSpeedMul = 1.0f;
@@ -264,7 +256,6 @@ public class MaskBuff
         {
             case PlayerAttack.AttackMode.Cone: return coneDamageMul;
             case PlayerAttack.AttackMode.Circle: return circleDamageMul;
-            case PlayerAttack.AttackMode.Ranged: return rangedDamageMul;
             default: return 1f;
         }
     }
@@ -275,7 +266,6 @@ public class MaskBuff
         {
             case PlayerAttack.AttackMode.Cone: return coneCooldownMul;
             case PlayerAttack.AttackMode.Circle: return circleCooldownMul;
-            case PlayerAttack.AttackMode.Ranged: return rangedCooldownMul;
             default: return 1f;
         }
     }
@@ -286,7 +276,6 @@ public class MaskBuff
         {
             case PlayerAttack.AttackMode.Cone: return coneDamageAdd;
             case PlayerAttack.AttackMode.Circle: return circleDamageAdd;
-            case PlayerAttack.AttackMode.Ranged: return rangedDamageAdd;
             default: return 0f;
         }
     }
@@ -313,12 +302,12 @@ public class MaskBuff
 
     public float GetRangeAdd(PlayerAttack.AttackMode mode)
     {
-        return mode == PlayerAttack.AttackMode.Ranged ? rangedRangeAdd : 0f;
+        return 0f;
     }
 
     public float GetRangeMul(PlayerAttack.AttackMode mode)
     {
-        return mode == PlayerAttack.AttackMode.Ranged ? rangedRangeMul : 1f;
+        return 1f;
     }
 
     public float GetCooldownAdd(PlayerAttack.AttackMode mode)
@@ -327,7 +316,6 @@ public class MaskBuff
         {
             case PlayerAttack.AttackMode.Cone: return coneCooldownAdd;
             case PlayerAttack.AttackMode.Circle: return circleCooldownAdd;
-            case PlayerAttack.AttackMode.Ranged: return rangedCooldownAdd;
             default: return 0f;
         }
     }
