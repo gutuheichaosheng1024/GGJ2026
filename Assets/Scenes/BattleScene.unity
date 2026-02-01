@@ -715,11 +715,11 @@ MonoBehaviour:
   maxSan: 60
   currentSan: 60
   moveSpeed: 1
-  dashTime: 0.5
+  dashTime: 0.2
   dashSpeed: 8
   isMaskOn: 0
   sanRegenPerSecond: 0.5
-  sanDrainMaskPerSecond: 3
+  sanDrainMaskPerSecond: 2
   maskBuff:
     coneDamageAdd: 0
     coneDamageMul: 2
@@ -3904,7 +3904,7 @@ PrefabInstance:
     - target: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 497700470118778720, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}

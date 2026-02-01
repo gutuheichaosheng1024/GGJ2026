@@ -243,11 +243,16 @@ public class MonsterAI : MonoBehaviour
             animator.SetTrigger(attackTrigger);
         }
 
-        PlayerStatus status = target.GetComponent<PlayerStatus>();
-        if (status != null)
+        PlayerStatus status = target != null ? target.GetComponentInParent<PlayerStatus>() : null;
+        if (status == null && target != null)
         {
-            status.AddHealth(-attackDamage);
+            status = target.GetComponentInChildren<PlayerStatus>();
         }
+        if (status == null)
+        {
+            return;
+        }
+        status.AddHealth(-attackDamage);
     }
 
     void SetMoving(bool isMoving)
