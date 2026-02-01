@@ -2520,7 +2520,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &861626490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3917,7 +3917,7 @@ PrefabInstance:
     - target: {fileID: 22930631506241402, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1036677577332984383, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
@@ -3969,6 +3969,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8741431932123605522, guid: 741fc4ca536a8b54087ce3f528588b99,
+        type: 3}
+      propertyPath: stompClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 26f47ad8c19237c49b1bd3e86b80fea5, type: 3}
     - target: {fileID: 8741431932123605522, guid: 741fc4ca536a8b54087ce3f528588b99,
         type: 3}
       propertyPath: hitClips.Array.data[0]

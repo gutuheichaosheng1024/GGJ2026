@@ -99,6 +99,8 @@ public class BossAI2 : MonoBehaviour
     public int stompWaves = 3;
     public float stompWaveInterval = 0.25f;
     public float stompWaveDamage = 3f;
+    public AudioSource stompAudioSource;
+    public AudioClip stompClip;
 
     [Header("Summon (HP 50% once)")]
     public Transform arenaCenter;
@@ -194,6 +196,10 @@ public class BossAI2 : MonoBehaviour
         if (hitAudioSource == null)
         {
             hitAudioSource = GetComponent<AudioSource>();
+        }
+        if (stompAudioSource == null)
+        {
+            stompAudioSource = hitAudioSource;
         }
 
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
@@ -512,6 +518,7 @@ public class BossAI2 : MonoBehaviour
         yield return new WaitForSeconds(stompWindup);
         HideTelegraphs();
 
+        PlayStompSfx();
         for (int i = 0; i < stompWaves; i++)
         {
             DealConeDamage(dir, stompRadius, stompAngle, stompWaveDamage);
@@ -521,6 +528,14 @@ public class BossAI2 : MonoBehaviour
         SetPhased(true);
         isSkillRunning = false;
         state = BossState.Chase;
+    }
+
+    void PlayStompSfx()
+    {
+        if (stompAudioSource != null && stompClip != null)
+        {
+            stompAudioSource.PlayOneShot(stompClip);
+        }
     }
 
     IEnumerator DoSummon()
